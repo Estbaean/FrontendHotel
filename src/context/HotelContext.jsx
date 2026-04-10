@@ -257,6 +257,13 @@ export function HotelProvider({ children }) {
   const updateEmpresa = useCallback(async (id, d) => {
     const updated = await putEmpresa(id, d);
     setEmpresas(p => p.map(e => e.id === id ? updated : e));
+    try {
+      const activos = await getAlquileresActivos();
+      setAlquileres(p => {
+        const activosMap = new Map(activos.map(a => [a.id, a]));
+        return p.map(a => activosMap.has(a.id) ? activosMap.get(a.id) : a);
+      });
+    } catch (_) {}
   }, []);
 
   const deleteEmpresa = useCallback(async (id) => {
@@ -274,6 +281,13 @@ export function HotelProvider({ children }) {
   const updateCliente = useCallback(async (id, d) => {
     const updated = await putCliente(id, d);
     setClientes(p => p.map(c => c.id === id ? updated : c));
+    try {
+      const activos = await getAlquileresActivos();
+      setAlquileres(p => {
+        const activosMap = new Map(activos.map(a => [a.id, a]));
+        return p.map(a => activosMap.has(a.id) ? activosMap.get(a.id) : a);
+      });
+    } catch (_) {}
     return updated;
   }, []);
 

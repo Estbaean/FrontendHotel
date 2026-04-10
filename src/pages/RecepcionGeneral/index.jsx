@@ -4,7 +4,7 @@ import { ESTADOS } from '../../constants/estados';
 import { Badge, Card, ConfirmDialog, RSelect, SearchInput, Popover, Modal, Btn, Field, inputStyle, filterLabel, PageHeader, useToast } from '../../components/UI/index.jsx';
 import CheckInModal from '../../components/CheckInModal.jsx';
 import { BedDouble, Layers, ChevronDown, LogIn, LogOut, Building2, User, Clock, ClipboardList, Check } from 'lucide-react';
-import { esAlquilerEmpresa, METODOS_PAGO } from '../../utils/formHelpers';
+import { esAlquilerEmpresa, puedeVerMontos, METODOS_PAGO } from '../../utils/formHelpers';
 import { getCuentasByAlquiler } from '../../api/consumos';
 import { getHabitacionesDisponibles } from '../../api/habitaciones';
 import { useNavigate } from 'react-router-dom';
@@ -174,7 +174,7 @@ export default function RecepcionGeneral() {
             const est  = ESTADOS[hab.estado] || ESTADOS.DISPONIBLE;
             const activeAlquiler = alquileres.find(a => a.numeroHabitacion === hab.numero && a.estadoAlquiler === 'ACTIVO');
             const alquilerEsEmpresa = esAlquilerEmpresa(activeAlquiler);
-            const puedeVerMontoPendiente = isAdmin || !alquilerEsEmpresa;
+            const puedeVerMontoPendiente = puedeVerMontos(isAdmin, alquilerEsEmpresa);
             const isOcupada = hab.estado === 'OCUPADA' && activeAlquiler;
 
             // Time since check-in
@@ -455,7 +455,7 @@ export default function RecepcionGeneral() {
       <Modal open={!!checkOutTarget} onOpenChange={(open) => { if (!open) { setCheckOutTarget(null); setCheckoutCuentaItems([]); } }} title="Confirmar Check-out" width={480}>
         {checkOutTarget && (() => {
           const esEmpresaCheckout = esAlquilerEmpresa(checkOutTarget);
-          const verMontosCheckout = isAdmin || !esEmpresaCheckout;
+          const verMontosCheckout = puedeVerMontos(isAdmin, esEmpresaCheckout);
           return (
           <>
             <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 12 }}>

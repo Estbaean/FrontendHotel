@@ -6,7 +6,7 @@ import { getCuentasByAlquiler, postCuenta, putCuenta, deleteCuenta } from '../..
 import { getMovimientosPorAlquiler } from '../../api/caja';
 import { patchAlquilerMontos, previewDeleteHistorial, deleteHistorial } from '../../api/alquileres';
 import { descargarReporteAlquileresActivos, generarBoletaCheckout, generarRegistroAsistencia } from '../../utils/reportesPdf';
-import { esAlquilerEmpresa, METODOS_PAGO } from '../../utils/formHelpers';
+import { esAlquilerEmpresa, puedeVerMontos, METODOS_PAGO } from '../../utils/formHelpers';
 import { chipStyle, quickDateBtn } from '../../constants/filterStyles';
 
 const PER_PAGE = 12;
@@ -204,7 +204,7 @@ export default function Alquileres() {
     const { descripcion, precioUnit, cantidad } = newConsumo;
     if (!descripcion.trim() || cantidad < 1) return;
     const alquilerEsEmpresa = esAlquilerEmpresa(cuentaModal);
-    const puedeEditarPrecioUnit = isAdmin || !alquilerEsEmpresa;
+    const puedeEditarPrecioUnit = puedeVerMontos(isAdmin, alquilerEsEmpresa);
     const precio = puedeEditarPrecioUnit ? parseFloat(precioUnit || '0') : 0;
     const payload = { descripcion: descripcion.trim(), precioUnit: precio, cantidad: Number(cantidad), estado: 'PENDIENTE' };
 
@@ -534,7 +534,6 @@ export default function Alquileres() {
                 style={{ transition: 'background .12s' }}
               >                {(() => {
                   const esEmpresa = esAlquilerEmpresa(a);
-                  const puedeVerMontos = isAdmin || !esEmpresa;
                   return (
                     <>
                 <td style={tdStyle}>
@@ -566,7 +565,7 @@ export default function Alquileres() {
                 <td style={tdStyle}>{formatDate(a.fechaIngreso)}</td>
                 <td style={tdStyle}>{formatDate(tab === 'FINALIZADO' ? (a.fechaSalida || a.fechaPrevista) : a.fechaPrevista)}</td>
                 <td style={tdStyle}>
-                  {puedeVerMontos ? (
+                  {puedeVerMontos(isAdmin, esEmpresa) ? (
                     <span style={{
                       fontWeight: 700,
                       color: a.pagoPendiente > 0 ? 'var(--red, #e53935)' : 'var(--green, #43a047)',
@@ -608,7 +607,7 @@ export default function Alquileres() {
       <Modal open={!!checkOutModal} onOpenChange={(open) => !open && setCheckOutModal(null)} title="Confirmar Check-out" width={480}>
         {checkOutModal && (() => {
           const esEmpresaCheckout = esAlquilerEmpresa(checkOutModal);
-          const verMontosCheckout = isAdmin || !esEmpresaCheckout;
+          const verMontosCheckout = puedeVerMontos(isAdmin, esEmpresaCheckout);
           return (
           <>
             <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 12 }}>
@@ -683,7 +682,7 @@ export default function Alquileres() {
       <Modal open={!!cuentaModal} onOpenChange={(open) => !open && setCuentaModal(null)} title="Cuenta del Alquiler" width={580}>
         {cuentaModal && (() => {
           const esEmpresa = esAlquilerEmpresa(cuentaModal);
-          const mostrarPrecios = isAdmin || !esEmpresa;
+          const mostrarPrecios = puedeVerMontos(isAdmin, esEmpresa);
           const basePrice = parseFloat(cuentaModal.subTotal || 0);
           const totalConsumos = cuentaItems.reduce((sum, c) => sum + c.subTotal, 0);
           const totalFactura = basePrice + totalConsumos;
@@ -857,7 +856,7 @@ export default function Alquileres() {
 
               {/* Add consumo */}
               {cuentaModal.estadoAlquiler === 'ACTIVO' && (() => {
-                const mostrarPrecioUnit = isAdmin || !esEmpresa;
+                const mostrarPrecioUnit = puedeVerMontos(isAdmin, esEmpresa);
                 return (
                   <div style={{ borderTop: '1px solid var(--border)', paddingTop: 14 }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '.5px' }}>
