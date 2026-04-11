@@ -270,3 +270,60 @@
   color: var(--text-muted);
   margin-bottom: 12px;
 }
+
+/* ═══ Responsive ══════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .summaryGrid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .summaryValue {
+    font-size: 17px;
+  }
+  .tabBtn, .tabBtnActive {
+    padding: 7px 12px;
+    font-size: 12px;
+  }
+  .formGrid2 {
+    grid-template-columns: 1fr;
+  }
+  .phoneGrid {
+    grid-template-columns: 1fr;
+  }
+  .billBox {
+    padding: 10px 12px;
+  }
+  .amountInput {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .summaryGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+  .summaryCard {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+  .summaryLabel {
+    font-size: 10px;
+  }
+  .summaryValue {
+    font-size: 15px;
+  }
+  .tabBar {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tabBtn, .tabBtnActive {
+    padding: 6px 10px;
+    font-size: 11.5px;
+    white-space: nowrap;
+  }
+  .modalFooter {
+    flex-wrap: wrap;
+  }
+}

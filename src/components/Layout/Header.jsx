@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Menu, UserCircle2, Clock } from 'lucide-react';
 import ls from './Layout.module.css';
@@ -15,25 +14,9 @@ function useLiveClock() {
   return { time, date };
 }
 
-const TITLES = {
-  '/':                 { title:'Vista General',         sub:'Recepción y estado de habitaciones' },
-  '/habitaciones':     { title:'Habitaciones',           sub:'Gestión y registro de cuartos' },
-  '/configuracion':    { title:'Configuración',          sub:'Tipos de habitación y alquiler' },
-  '/tarifas':          { title:'Tarifas',                sub:'Precios por tipo de habitación y alquiler' },
-  '/empresa':          { title:'Empresas',               sub:'Empresas registradas' },
-  '/caja':             { title:'Caja',                   sub:'Ingresos y egresos' },
-  '/clientes':         { title:'Clientes',               sub:'Lista de clientes registrados' },
-
-  '/alquileres':       { title:'Alquileres',             sub:'Rentas activas e historial' },
-  '/usuarios':         { title:'Usuarios',               sub:'Gestión de recepcionistas' },
-  '/perfil':           { title:'Mi Perfil',              sub:'Datos de tu cuenta' },
-};
-
 export default function Header({ onMenuToggle, onUserToggle }) {
-  const { pathname } = useLocation();
   const { userRole } = useAuth();
   const { time, date } = useLiveClock();
-  const info = TITLES[pathname] ?? { title:'Hotel Admin', sub:'' };
 
   return (
     <header className={ls.appHeader}>
@@ -44,14 +27,10 @@ export default function Header({ onMenuToggle, onUserToggle }) {
         }}>
           <Menu size={20} />
         </button>
-        <div>
-          <h1 style={s.title}>{info.title}</h1>
-          <p style={s.sub}>{info.sub}</p>
-        </div>
       </div>
 
       <div className="header-actions" style={s.right}>
-        <div style={s.clock}>
+        <div className="clock-box" style={s.clock}>
           <Clock size={13} color="var(--accent)" strokeWidth={2.2} />
           <span style={s.clockTime}>{time}</span>
           <span style={s.clockDate}>{date}</span>
@@ -74,17 +53,7 @@ export default function Header({ onMenuToggle, onUserToggle }) {
 }
 
 const s = {
-  root: {
-    height:58, background:'var(--surface)',
-    borderBottom:'1px solid var(--border)',
-    display:'flex', alignItems:'center',
-    justifyContent:'space-between', padding:'0 24px',
-    position:'sticky', top:0, zIndex:100,
-    gap: 8,
-  },
   left: { display:'flex', alignItems:'center', gap:12 },
-  title: { fontSize:17, fontWeight:700, color:'var(--text)', letterSpacing:'-0.25px', lineHeight:1.2 },
-  sub:   { fontSize:12, color:'var(--text-muted)', marginTop:2 },
   right: { display:'flex', alignItems:'center', gap:10 },
   clock: {
     display:'flex', alignItems:'center', gap:6,

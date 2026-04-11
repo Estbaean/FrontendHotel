@@ -8,11 +8,11 @@
   --accent-mid:    #fce8c4;
 
   /* Neutrales — piedra cálida */
-  --bg:            #fafaf9;
-  --surface:       #ffffff;
-  --surface-2:     #f5f5f4;
-  --border:        #e7e5e4;
-  --border-strong: #d6d3d1;
+  --bg:            #f2ece4;
+  --surface:       #fefdfb;
+  --surface-2:     #f5f0e9;
+  --border:        #e2d9ce;
+  --border-strong: #cfc4b4;
 
   /* Texto */
   --text:          #1c1917;
@@ -21,12 +21,12 @@
   --text-xmuted:   #a8a29e;
 
   /* Barra lateral */
-  --side-bg:       #ffffff;
-  --side-border:   #f0ede8;
-  --side-active-bg:#fdf7ed;
+  --side-bg:       #2c1a0a;
+  --side-border:   rgba(212,134,12,.18);
+  --side-active-bg:rgba(212,134,12,.20);
   --side-active:   #d4860c;
-  --side-hover:    #fafaf9;
-  --side-text:     #57534e;
+  --side-hover:    rgba(255,255,255,.06);
+  --side-text:     rgba(255,255,255,.7);
 
   /* Semántico */
   --green:         #16a34a;
@@ -294,17 +294,18 @@ tbody tr:hover { background: #fdf5e8 !important; }
 
 /* ═══ Responsive breakpoints ═════════════════════════════════════ */
 
-/* Mobile: <= 768px */
+/* Tablet: <= 768px */
 @media (max-width: 768px) {
   /* Tables scroll horizontally */
   table {
-    min-width: 600px;
+    min-width: 540px;
   }
 
-  /* Page headers wrap on mobile */
+  /* Page headers stack on mobile */
   .page-header {
-    flex-wrap: wrap;
-    gap: 10px;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
   }
   .page-header h1 { font-size: 20px !important; }
 
@@ -317,5 +318,27 @@ tbody tr:hover { background: #fdf5e8 !important; }
   .dialog-content {
     width: calc(100vw - 16px) !important;
     max-width: none !important;
+  }
+
+  /* Search inputs full-width */
+  .search-input-wrap {
+    max-width: none !important;
+  }
+
+  /* Header hide clock on mobile */
+  .header-actions .clock-box { display: none !important; }
+}
+
+/* Small phone: <= 480px */
+@media (max-width: 480px) {
+  .page-header h1 { font-size: 18px !important; }
+
+  .dialog-content {
+    width: calc(100vw - 12px) !important;
+    max-height: 90vh;
+  }
+
+  .alert-content {
+    max-width: calc(100vw - 20px);
   }
 }

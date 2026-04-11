@@ -120,12 +120,12 @@ export default function Perfil() {
 
   return (
     <div className="page-anim">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24, gap: 12, flexWrap: 'wrap' }}>
         <div>
           <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--text)', margin: 0 }}>Mi Perfil</h1>
           <p style={{ color: 'var(--text-muted)', fontSize: 14, margin: '4px 0 0' }}>Datos de tu cuenta</p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <Btn icon={<Pencil size={14} />} onClick={openEditProfile}>Editar Perfil</Btn>
           <Btn icon={<KeyRound size={14} />} variant="ghost" onClick={() => { setPassOpen(true); setPassForm({ currentPassword: '', newPassword: '', confirmPassword: '' }); setPassErrors({}); }}>Cambiar Contraseña</Btn>
         </div>

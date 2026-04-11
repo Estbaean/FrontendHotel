@@ -401,7 +401,7 @@ export function EmptyState({ message='No hay registros', icon }) {
 /* ─── ENTRADA DE BÚSQUEDA ───────────────────────────────────── */
 export function SearchInput({ value, onChange, placeholder='Buscar...' }) {
   return (
-    <div style={{ position:'relative', display:'inline-flex', alignItems:'center' }}>
+    <div className="search-input-wrap" style={{ position:'relative', display:'inline-flex', alignItems:'center', width:'100%', maxWidth:220 }}>
       <span style={{ position:'absolute', left:10, color:'var(--text-xmuted)', fontSize:13, pointerEvents:'none', display:'inline-flex' }}>
         <Search size={13} />
       </span>
@@ -411,7 +411,7 @@ export function SearchInput({ value, onChange, placeholder='Buscar...' }) {
         placeholder={placeholder}
         onFocus={inputFocus}
         onBlur={inputBlur}
-        style={{ ...inputStyle, paddingLeft:30, paddingRight:30, width:220 }}
+        style={{ ...inputStyle, paddingLeft:30, paddingRight:30, width:'100%' }}
       />
       {value && (
         <button
@@ -456,8 +456,8 @@ export { PopoverMenu, Popover };
 /* ─── CABECERA DE PÁGINA ─────────────────────────────── */
 export function PageHeader({ title, subtitle, children }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-      <div>
+    <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20, gap: 12, flexWrap: 'wrap' }}>
+      <div style={{ minWidth: 0 }}>
         <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--text)', margin: 0 }}>{title}</h1>
         {subtitle && <p style={{ color: 'var(--text-muted)', fontSize: 14, margin: '4px 0 0' }}>{subtitle}</p>}
       </div>

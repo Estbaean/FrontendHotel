@@ -10,7 +10,7 @@
   min-width: 220px;
   height: 100vh;
   background: var(--side-bg);
-  border-right: 1px solid var(--side-border);
+  border-right: 1px solid rgba(212,134,12,.25);
   display: flex;
   flex-direction: column;
   position: sticky;
@@ -33,14 +33,14 @@
 }
 
 .appHeader {
-  height: 58px;
-  background: rgba(255,255,255,0.72);
+  height: 48px;
+  background: rgba(242,236,228,0.88);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(231,229,228,0.6);
+  border-bottom: 1px solid rgba(194,184,169,0.6);
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   padding: 0 24px;
   position: sticky;
   top: 0;
@@ -93,10 +93,17 @@
     display: flex !important;
   }
   .appHeader {
-    padding: 0 14px;
-    height: 52px;
+    padding: 0 12px;
+    height: 44px;
+    justify-content: space-between;
   }
   .appContent {
     padding: 14px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .appContent {
+    padding: 10px 8px;
   }
 }

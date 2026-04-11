@@ -349,3 +349,61 @@
   font-size: 13px;
   color: var(--text-xmuted, var(--text-muted));
 }
+
+/* ═══ Responsive ══════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .statsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .statCount {
+    font-size: 20px;
+  }
+  .roomGrid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+  }
+  .roomCard {
+    min-height: 170px;
+  }
+  .roomBody {
+    padding: 10px 12px 12px;
+  }
+  .roomNumber {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+  .statCount {
+    font-size: 18px;
+  }
+  .roomGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .roomCard {
+    min-height: 150px;
+  }
+  .roomNumber {
+    font-size: 20px;
+  }
+  .tagsRow {
+    gap: 4px;
+  }
+  .tag {
+    font-size: 8.5px;
+    padding: 1px 5px;
+  }
+}
+
+@media (max-width: 360px) {
+  .roomGrid {
+    grid-template-columns: 1fr;
+  }
+}

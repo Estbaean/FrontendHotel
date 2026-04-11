@@ -8,21 +8,21 @@ export default function Sidebar({ open, onClose }) {
   const { pathname } = useLocation();
 
   const NAV_ADMIN = [
-    { to:'/',                  icon:LayoutDashboard, label:'Recepción',         sub:'Vista general' },
-    { to:'/caja',              icon:DollarSign,      label:'Caja',              sub:'Ingresos/Egresos' },
-    { to:'/alquileres',        icon:ClipboardList,   label:'Alquileres',        sub:'Rentas activas' },
-    { to:'/habitaciones',      icon:BedDouble,       label:'Habitaciones',      sub:'Gestión de cuartos' },
-    { to:'/configuracion',     icon:Settings,        label:'Configuración',     sub:'Tipos hab. y alquiler' },
-    { to:'/tarifas',           icon:DollarSign,      label:'Tarifas',           sub:'Precios' },
-    { to:'/empresa',           icon:Building2,       label:'Empresas',          sub:'Empresas registradas' },
-    { to:'/clientes',          icon:Users,           label:'Clientes',          sub:'Lista completa' },
+    { to:'/',                  icon:LayoutDashboard, label:'Recepción' },
+    { to:'/caja',              icon:DollarSign,      label:'Caja' },
+    { to:'/alquileres',        icon:ClipboardList,   label:'Alquileres' },
+    { to:'/habitaciones',      icon:BedDouble,       label:'Habitaciones' },
+    { to:'/configuracion',     icon:Settings,        label:'Configuración' },
+    { to:'/tarifas',           icon:DollarSign,      label:'Tarifas' },
+    { to:'/empresa',           icon:Building2,       label:'Empresas' },
+    { to:'/clientes',          icon:Users,           label:'Clientes' },
   ];
 
   const NAV_RECEPCION = [
-    { to:'/',             icon:LayoutDashboard, label:'Recepción',    sub:'Vista general' },
-    { to:'/alquileres',   icon:ClipboardList,   label:'Alquileres',   sub:'Rentas activas' },
-    { to:'/habitaciones', icon:BedDouble,       label:'Habitaciones', sub:'Estado cuartos' },
-    { to:'/clientes',     icon:Users,           label:'Clientes',     sub:'Lista disponible' },
+    { to:'/',             icon:LayoutDashboard, label:'Recepción' },
+    { to:'/alquileres',   icon:ClipboardList,   label:'Alquileres' },
+    { to:'/habitaciones', icon:BedDouble,       label:'Habitaciones' },
+    { to:'/clientes',     icon:Users,           label:'Clientes' },
   ];
 
   const isActive = (to) => to === '/' ? pathname === '/' : pathname.startsWith(to);
@@ -41,7 +41,7 @@ export default function Sidebar({ open, onClose }) {
         </div>
         <button className={ls.sidebarClose} onClick={onClose} style={{
           border: 'none', background: 'none', cursor: 'pointer', padding: 4,
-          color: 'var(--text-muted)',
+          color: 'rgba(255,255,255,.4)',
         }}>
           <X size={18} />
         </button>
@@ -52,7 +52,7 @@ export default function Sidebar({ open, onClose }) {
       {/* Navegación */}
       <nav style={s.nav}>
         <p style={s.groupLabel}>MÓDULOS</p>
-        {NAV.map(({ to, icon: Icon, label, sub }) => {
+        {NAV.map(({ to, icon: Icon, label }) => {
           const active = isActive(to);
           return (
             <Link
@@ -66,20 +66,17 @@ export default function Sidebar({ open, onClose }) {
             >
               <span style={{
                 ...s.iconBox,
-                background: active ? 'var(--accent)' : 'var(--surface-2)',
-                color: active ? '#fff' : 'var(--text-muted)',
+                background: active ? 'var(--accent)' : 'rgba(255,255,255,.10)',
+                color: active ? '#fff' : 'rgba(255,255,255,.5)',
                 boxShadow: active ? '0 0 8px rgba(212,134,12,.3)' : 'none',
               }}>
                 <Icon size={14} strokeWidth={active ? 2.2 : 1.8} />
               </span>
-              <span style={{ flex:1, minWidth:0 }}>
-                <span style={{ display:'block', fontSize:13, fontWeight: active ? 700 : 500, color: active ? 'var(--accent-dark)' : 'var(--text-2)', lineHeight:1.2 }}>{label}</span>
-                <span style={{ display:'block', fontSize:11, color:'var(--text-xmuted)', marginTop:2 }}>{sub}</span>
-              </span>
+              <span style={{ fontSize:13, fontWeight: active ? 700 : 500, color: active ? '#f5ac35' : 'rgba(255,255,255,.82)' }}>{label}</span>
               {active && (
                 <span style={{
                   width:3, height:20, borderRadius:2,
-                  background:'var(--accent)', flexShrink:0, marginLeft:4,
+                  background:'var(--accent)', flexShrink:0, marginLeft:'auto',
                   boxShadow:'0 0 6px rgba(212,134,12,.4)',
                 }} />
               )}
@@ -88,7 +85,7 @@ export default function Sidebar({ open, onClose }) {
         })}
 
         {/* Divider for user section */}
-        <div style={{ margin: '18px 0 8px', height: 1, background: 'var(--border)' }} />
+        <div style={{ margin: '18px 0 8px', height: 1, background: 'rgba(255,255,255,.08)' }} />
 
         {/* User section at the bottom */}
         <div style={{ marginTop: 6 }}>
@@ -103,15 +100,12 @@ export default function Sidebar({ open, onClose }) {
           >
             <span style={{
               ...s.iconBox,
-              background: isActive('/perfil') ? 'var(--accent)' : 'var(--surface-2)',
-              color: isActive('/perfil') ? '#fff' : 'var(--text-muted)',
+              background: isActive('/perfil') ? 'var(--accent)' : 'rgba(255,255,255,.10)',
+              color: isActive('/perfil') ? '#fff' : 'rgba(255,255,255,.5)',
             }}>
               <Users size={14} strokeWidth={isActive('/perfil') ? 2.2 : 1.8} />
             </span>
-            <span style={{ flex:1, minWidth:0 }}>
-              <span style={{ display:'block', fontSize:13, fontWeight: isActive('/perfil') ? 700 : 500, color: isActive('/perfil') ? 'var(--accent-dark)' : 'var(--text-2)', lineHeight:1.2 }}>Perfil</span>
-              <span style={{ display:'block', fontSize:11, color:'var(--text-xmuted)', marginTop:2 }}>Mi cuenta</span>
-            </span>
+            <span style={{ fontSize:13, fontWeight: isActive('/perfil') ? 700 : 500, color: isActive('/perfil') ? '#f5ac35' : 'rgba(255,255,255,.82)' }}>Perfil</span>
           </Link>
           {userRole === 'admin' && (
             <Link
@@ -124,15 +118,12 @@ export default function Sidebar({ open, onClose }) {
             >
               <span style={{
                 ...s.iconBox,
-                background: isActive('/usuarios') ? 'var(--accent)' : 'var(--surface-2)',
-                color: isActive('/usuarios') ? '#fff' : 'var(--text-muted)',
+                background: isActive('/usuarios') ? 'var(--accent)' : 'rgba(255,255,255,.10)',
+                color: isActive('/usuarios') ? '#fff' : 'rgba(255,255,255,.5)',
               }}>
                 <Users size={14} strokeWidth={isActive('/usuarios') ? 2.2 : 1.8} />
               </span>
-              <span style={{ flex:1, minWidth:0 }}>
-                <span style={{ display:'block', fontSize:13, fontWeight: isActive('/usuarios') ? 700 : 500, color: isActive('/usuarios') ? 'var(--accent-dark)' : 'var(--text-2)', lineHeight:1.2 }}>Usuarios</span>
-                <span style={{ display:'block', fontSize:11, color:'var(--text-xmuted)', marginTop:2 }}>Gestión de usuarios</span>
-              </span>
+              <span style={{ fontSize:13, fontWeight: isActive('/usuarios') ? 700 : 500, color: isActive('/usuarios') ? '#f5ac35' : 'rgba(255,255,255,.82)' }}>Usuarios</span>
             </Link>
           )}
         </div>
@@ -152,25 +143,25 @@ const s = {
   },
   logoMark: {
     width:32, height:32, borderRadius:'var(--r-md)',
-    background:'var(--accent-light)', border:'1px solid var(--accent-mid)',
+    background:'rgba(212,134,12,.18)', border:'1px solid rgba(212,134,12,.3)',
     display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
     boxShadow:'0 0 0 4px rgba(212,134,12,.1)',
   },
   logoName: {
-    fontSize:14, fontWeight:800, color:'var(--text)', letterSpacing:'-0.3px',
+    fontSize:14, fontWeight:800, color:'#fff', letterSpacing:'-0.3px',
   },
   logoTag: {
-    fontSize:10, color:'var(--text-xmuted)', marginTop:1,
+    fontSize:10, color:'rgba(255,255,255,.38)', marginTop:1,
   },
   divider: {
-    height:1, background:'var(--border)', margin:'0 14px 8px',
+    height:1, background:'rgba(255,255,255,.08)', margin:'0 14px 8px',
   },
   nav: {
     flex:1, overflowY:'auto', padding:'0 8px 10px',
   },
   groupLabel: {
     fontSize:10, fontWeight:800, letterSpacing:'1.3px',
-    color:'var(--text-xmuted)', padding:'6px 10px 8px',
+    color:'rgba(255,255,255,.3)', padding:'6px 10px 8px',
     textTransform:'uppercase', margin:0,
   },
   item: {

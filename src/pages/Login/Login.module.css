@@ -1,71 +1,94 @@
+/* ── Fondo ─────────────────────────────────────────── */
 .wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  background: linear-gradient(135deg, var(--accent-light) 0%, var(--bg) 50%, var(--surface-2) 100%);
-  position: relative;
-  overflow: hidden;
+  min-height: 100vh;
+  background: radial-gradient(ellipse at 60% 40%, #5c3415 0%, #361d08 60%, #1c0e04 100%);
+  padding: 24px;
 }
 
-.decor {
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.decorTop {
-  composes: decor;
-  top: -15%;
-  right: -10%;
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(212,134,12,.07) 0%, transparent 70%);
-}
-
-.decorBottom {
-  composes: decor;
-  bottom: -20%;
-  left: -5%;
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, rgba(212,134,12,.05) 0%, transparent 70%);
-}
-
-.card {
+/* ── Contenedor split ───────────────────────────────── */
+.container {
+  display: flex;
   width: 100%;
-  max-width: 400px;
-  padding: 36px 32px;
-  margin: 0 16px;
-  box-shadow: var(--shadow-lg);
-  position: relative;
-  z-index: 1;
+  max-width: 840px;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 28px 64px rgba(0,0,0,.55);
 }
 
-.header {
-  text-align: center;
-  margin-bottom: 28px;
+/* ── Panel izquierdo — marca ────────────────────────── */
+.brand {
+  flex: 0 0 300px;
+  background: #160b03;
+  border-right: 1px solid rgba(212,134,12,.20);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 52px 32px;
+  gap: 0;
 }
 
 .logo {
-  width: 170px;
+  width: 164px;
   height: auto;
   object-fit: contain;
-  margin-bottom: 14px;
+  margin-bottom: 22px;
+  border-radius: 12px;
+}
+
+.brandTitle {
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffffff;
+  text-align: center;
+  margin: 0 0 8px;
+  letter-spacing: -0.2px;
+  line-height: 1.2;
+}
+
+.brandSub {
+  font-size: 12px;
+  color: rgba(255,255,255,.40);
+  text-align: center;
+  margin: 0;
+  letter-spacing: .3px;
+}
+
+/* ── Panel derecho — formulario ─────────────────────── */
+.formPanel {
+  flex: 1;
+  background: #fdf8f2;
+  padding: 52px 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .title {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 800;
   color: var(--text);
-  margin: 0;
+  margin: 0 0 6px;
   letter-spacing: -0.3px;
 }
 
 .subtitle {
   font-size: 13px;
   color: var(--text-muted);
-  margin: 6px 0 0;
+  margin: 0 0 0;
+  padding-bottom: 24px;
+  border-bottom: 2px solid var(--accent-mid);
+  margin-bottom: 24px;
+}
+
+/* Responsive: apila en móvil */
+@media (max-width: 600px) {
+  .container { flex-direction: column; }
+  .brand { flex: none; padding: 36px 24px; border-right: none; border-bottom: 1px solid rgba(212,134,12,.20); }
+  .formPanel { padding: 32px 24px; }
 }
 
 .fieldLabel {
@@ -79,13 +102,14 @@
 .input {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: var(--r-md);
   font-size: 14px;
-  background: var(--surface);
+  background: #ffffff;
   color: var(--text);
   outline: none;
   transition: border-color .15s, box-shadow .15s;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
 }
 
 .input:focus {

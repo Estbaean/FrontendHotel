@@ -138,6 +138,7 @@ export default function RecepcionGeneral() {
               cursor: isTotal ? 'default' : 'pointer',
               outline: !isTotal && isActive ? `2px solid ${e.dot}` : 'none',
               outlineOffset: -2,
+              borderLeft: isTotal ? '3px solid var(--accent)' : `3px solid ${e.dot}`,
             }}
               className={isTotal ? undefined : c.roomCard}
               onClick={() => !isTotal && setFEstado(fEstado===k?'':k)}
