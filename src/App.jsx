@@ -37,7 +37,7 @@ function AppContent() {
           <Route path="habitaciones" element={<Habitaciones />} />
           <Route path="configuracion" element={<RequireAdmin><Configuracion /></RequireAdmin>} />
           <Route path="tarifas" element={<RequireAdmin><Tarifas /></RequireAdmin>} />
-          <Route path="caja" element={<Caja />} />
+          <Route path="caja" element={<RequireAdmin><Caja /></RequireAdmin>} />
           <Route path="empresa" element={<RequireAdmin><Empresa /></RequireAdmin>} />
           <Route path="clientes" element={<Clientes />} />
 

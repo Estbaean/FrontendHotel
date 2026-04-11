@@ -20,7 +20,6 @@ export default function Sidebar({ open, onClose }) {
 
   const NAV_RECEPCION = [
     { to:'/',             icon:LayoutDashboard, label:'Recepción',    sub:'Vista general' },
-    { to:'/caja',         icon:DollarSign,      label:'Caja',         sub:'Ingresos/Egresos' },
     { to:'/alquileres',   icon:ClipboardList,   label:'Alquileres',   sub:'Rentas activas' },
     { to:'/habitaciones', icon:BedDouble,       label:'Habitaciones', sub:'Estado cuartos' },
     { to:'/clientes',     icon:Users,           label:'Clientes',     sub:'Lista disponible' },
