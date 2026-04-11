@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useHotel } from '../../context/HotelContext';
+import { useAuth } from '../../context/AuthContext';
 import { Menu, UserCircle2, Clock } from 'lucide-react';
+import ls from './Layout.module.css';
 
 function useLiveClock() {
   const [now, setNow] = useState(new Date());
@@ -30,14 +31,14 @@ const TITLES = {
 
 export default function Header({ onMenuToggle, onUserToggle }) {
   const { pathname } = useLocation();
-  const { userRole } = useHotel();
+  const { userRole } = useAuth();
   const { time, date } = useLiveClock();
   const info = TITLES[pathname] ?? { title:'Hotel Admin', sub:'' };
 
   return (
-    <header className="app-header">
+    <header className={ls.appHeader}>
       <div style={s.left}>
-        <button className="menu-toggle" onClick={onMenuToggle} style={{
+        <button className={ls.menuToggle} onClick={onMenuToggle} style={{
           border: 'none', background: 'none', cursor: 'pointer', padding: 6,
           color: 'var(--text-muted)',
         }}>

@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { HotelProvider, useHotel } from './context/HotelContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { HotelProvider } from './context/HotelContext';
 import { TooltipProvider, ToastProvider } from './components/UI/index.jsx';
 import Layout from './components/Layout/Layout.jsx';
 import Login from './pages/Login';
@@ -15,7 +16,7 @@ import Usuarios from './pages/Usuarios';
 import Perfil from './pages/Perfil';
 
 function AppContent() {
-  const { isLoggedIn, userRole } = useHotel();
+  const { isLoggedIn, userRole } = useAuth();
 
   const RequireAdmin = ({ children }) => {
     if (userRole !== 'admin') {
@@ -52,13 +53,15 @@ function AppContent() {
 
 export default function App() {
   return (
-    <HotelProvider>
-      <TooltipProvider>
-        <ToastProvider>
-          <AppContent />
-        </ToastProvider>
-      </TooltipProvider>
-    </HotelProvider>
+    <AuthProvider>
+      <HotelProvider>
+        <TooltipProvider>
+          <ToastProvider>
+            <AppContent />
+          </ToastProvider>
+        </TooltipProvider>
+      </HotelProvider>
+    </AuthProvider>
   );
 }
 

@@ -1,10 +1,11 @@
 import { useState, useCallback } from "react";
 import CheckInClienteList from "./CheckInClienteList.jsx";
 import { useHotel } from "../context/HotelContext.jsx";
+import { useAuth } from "../context/AuthContext";
 import { Modal, Btn, Field, inputStyle, inputFocus, inputBlur } from "./UI/index.jsx";
 import { LogIn } from "lucide-react";
 import { sanitizeDecimal, METODOS_PAGO } from "../utils/formHelpers";
-import "./CheckInModal.css";
+import s from './CheckInModal.module.css';
 
 export default function CheckInModal({
   open,
@@ -15,7 +16,8 @@ export default function CheckInModal({
   pisos,
   onCheckIn,
 }) {
-  const { tiposAlquiler, userRole } = useHotel();
+  const { userRole } = useAuth();
+  const { tiposAlquiler } = useHotel();
   const isAdmin = userRole === 'admin';
 
   const [step, setStep] = useState(1);
@@ -114,25 +116,25 @@ export default function CheckInModal({
       description="Registro de check-in de huéspedes"
     >
       {/* Barra de progreso */}
-      <div className="stepper">
+      <div className={s.stepper}>
         {STEPS.map(({ num, label }, i) => (
-          <div key={num} className={`stepper-item ${step === num ? 'active' : ''} ${step > num ? 'done' : ''}`}>
-            <div className="stepper-circle">{step > num ? '✓' : num}</div>
-            <span className="stepper-label">{label}</span>
-            {i < STEPS.length - 1 && <div className="stepper-line" />}
+          <div key={num} className={`${s.stepperItem} ${step === num ? s.active : ''} ${step > num ? s.done : ''}`}>
+            <div className={s.stepperCircle}>{step > num ? '✓' : num}</div>
+            <span className={s.stepperLabel}>{label}</span>
+            {i < STEPS.length - 1 && <div className={s.stepperLine} />}
           </div>
         ))}
       </div>
 
       {/* PASO 1: CLIENTES */}
       {step === 1 && (
-        <div className="step-wrapper">
-          <div className="step-header">
+        <div className={s.stepWrapper}>
+          <div className={s.stepHeader}>
             <h3>Paso 1 de 4: Cliente</h3>
-            <p className="step-description">Seleccione o registre al huésped principal</p>
+            <p className={s.stepDescription}>Seleccione o registre al huésped principal</p>
           </div>
 
-          <div className="step-content">
+          <div className={s.stepContent}>
             <CheckInClienteList
               clientes={clientes}
               onClientesChange={setClientes}
@@ -142,7 +144,7 @@ export default function CheckInModal({
             />
           </div>
 
-          <div className="step-footer">
+          <div className={s.stepFooter}>
             <Btn variant="ghost" onClick={handleClose}>
               Cancelar
             </Btn>
@@ -186,51 +188,51 @@ export default function CheckInModal({
         })();
 
         return (
-        <div className="step-wrapper">
-          <div className="step-header">
+        <div className={s.stepWrapper}>
+          <div className={s.stepHeader}>
             <h3>Paso 2 de 4: Tipo de Alquiler + Duración</h3>
-            <p className="step-description">Seleccione modalidad y cantidad de tiempo</p>
+            <p className={s.stepDescription}>Seleccione modalidad y cantidad de tiempo</p>
           </div>
 
-          <div className="step-content">
-            <div className="alquiler-grid">
+          <div className={s.stepContent}>
+            <div className={s.alquilerGrid}>
               {tiposAlquiler.map((tipo) => (
                 <div
                   key={tipo.id}
-                  className={`alquiler-card ${tipoAlquilerId === String(tipo.id) ? "selected" : ""}`}
+                  className={`${s.alquilerCard} ${tipoAlquilerId === String(tipo.id) ? s.selected : ''}`}
                   onClick={() => setTipoAlquilerId(String(tipo.id))}
                   role="button"
                   tabIndex={0}
                   onKeyUp={(e) => e.key === "Enter" && setTipoAlquilerId(String(tipo.id))}
                 >
-                  <div className="alquiler-title">{tipo.nombre}</div>
+                  <div className={s.alquilerTitle}>{tipo.nombre}</div>
                 </div>
               ))}
             </div>
 
             {selectedTipo && (
               <>
-                <div className="hours-controls">
+                <div className={s.hoursControls}>
                   <Field label={`Cantidad de ${unitLabel}`} required>
-                    <div className="hours-only-wrap">
-                      <button type="button" className="hours-step" onClick={() => setCantTiempo(Math.max(1, cantTiempo - 1))}>-</button>
-                      <span className="hours-value">{cantTiempo}</span>
-                      <button type="button" className="hours-step" onClick={() => setCantTiempo(cantTiempo + 1)}>+</button>
+                    <div className={s.hoursOnlyWrap}>
+                      <button type="button" className={s.hoursStep} onClick={() => setCantTiempo(Math.max(1, cantTiempo - 1))}>-</button>
+                      <span className={s.hoursValue}>{cantTiempo}</span>
+                      <button type="button" className={s.hoursStep} onClick={() => setCantTiempo(cantTiempo + 1)}>+</button>
                     </div>
                   </Field>
                 </div>
 
                 {salidaPreview && (
-                  <div className="salida-preview">
-                    <span className="salida-preview-label">Salida estimada</span>
-                    <span className="salida-preview-date">{salidaPreview}</span>
+                  <div className={s.salidaPreview}>
+                    <span className={s.salidaPreviewLabel}>Salida estimada</span>
+                    <span className={s.salidaPreviewDate}>{salidaPreview}</span>
                   </div>
                 )}
               </>
             )}
           </div>
 
-          <div className="step-footer">
+          <div className={s.stepFooter}>
             <Btn variant="ghost" onClick={() => setStep(1)}>
               ← Atrás
             </Btn>
@@ -244,14 +246,14 @@ export default function CheckInModal({
 
       {/* PASO 3: HABITACIÓN */}
       {step === 3 && (
-        <div className="step-wrapper">
-          <div className="step-header">
+        <div className={s.stepWrapper}>
+          <div className={s.stepHeader}>
             <h3>Paso 3 de 4: Habitación</h3>
-            <p className="step-description">Seleccione una habitación disponible</p>
+            <p className={s.stepDescription}>Seleccione una habitación disponible</p>
           </div>
 
-          <div className="step-content">
-            <div className="filters-row">
+          <div className={s.stepContent}>
+            <div className={s.filtersRow}>
               <Field label="Piso">
                 <select value={filterPiso} onChange={(e) => setFilterPiso(e.target.value)} style={inputStyle}>
                   <option value="">Todos los pisos</option>
@@ -274,25 +276,25 @@ export default function CheckInModal({
               </Field>
             </div>
 
-            <div className="rooms-section">
+            <div className={s.roomsSection}>
               {filteredRooms.length === 0 ? (
-                <div className="empty-rooms">
+                <div className={s.emptyRooms}>
                   <p>No hay habitaciones disponibles con estos filtros</p>
                 </div>
               ) : (
-                <div className="rooms-grid">
+                <div className={s.roomsGrid}>
                   {filteredRooms.map((room) => {
                     const isSelected = selectedRoomId === room.id;
                     return (
                       <button
                         key={room.id}
-                        className={`room-btn ${isSelected ? "selected" : ""}`}
+                        className={`${s.roomBtn} ${isSelected ? s.selected : ''}`}
                         onClick={() => setSelectedRoomId(isSelected ? null : room.id)}
                         title={`Habitación ${room.numero} - ${room.tipoHabitacion?.nombre}`}
                       >
-                        <div className="room-number">{room.numero}</div>
-                        <div className="room-type">{room.tipoHabitacion?.nombre?.split(" ")[0] || "Tipo"}</div>
-                        <div className="room-floor">Piso {room.piso}</div>
+                        <div className={s.roomNumber}>{room.numero}</div>
+                        <div className={s.roomType}>{room.tipoHabitacion?.nombre?.split(" ")[0] || "Tipo"}</div>
+                        <div className={s.roomFloor}>Piso {room.piso}</div>
                       </button>
                     );
                   })}
@@ -301,7 +303,7 @@ export default function CheckInModal({
             </div>
           </div>
 
-          <div className="step-footer">
+          <div className={s.stepFooter}>
             <Btn variant="ghost" onClick={() => setStep(2)}>
               ← Atrás
             </Btn>
@@ -314,26 +316,26 @@ export default function CheckInModal({
 
       {/* PASO 4: RESUMEN + PAGO */}
       {step === 4 && (
-        <div className="step-wrapper">
-          <div className="step-header">
+        <div className={s.stepWrapper}>
+          <div className={s.stepHeader}>
             <h3>Paso 4 de 4: Resumen y Pago</h3>
-            <p className="step-description">Verifique los datos y configure el pago</p>
+            <p className={s.stepDescription}>Verifique los datos y configure el pago</p>
           </div>
 
-          <div className="step-content">
-            <div className="summary-section">
-              <h4 className="summary-title">Datos del check-in</h4>
-              <div className="summary-rows">
+          <div className={s.stepContent}>
+            <div className={s.summarySection}>
+              <h4 className={s.summaryTitle}>Datos del check-in</h4>
+              <div className={s.summaryRows}>
                 {selectedCliente?.empresaNombre && (
-                  <div className="summary-row">
-                    <span className="room-num">Empresa</span>
-                    <span className="room-rental" style={{ textAlign: 'right', fontWeight: 700 }}>
+                  <div className={s.summaryRow}>
+                    <span className={s.roomNum}>Empresa</span>
+                    <span className={s.roomRental} style={{ textAlign: 'right', fontWeight: 700 }}>
                       {selectedCliente.empresaNombre}
                     </span>
                   </div>
                 )}
-                <div className="summary-row" style={{ alignItems: 'flex-start' }}>
-                  <span className="room-num" style={{ paddingTop: 2 }}>
+                <div className={s.summaryRow} style={{ alignItems: 'flex-start' }}>
+                  <span className={s.roomNum} style={{ paddingTop: 2 }}>
                     {clientes.length === 1 ? 'Huésped' : `Huéspedes (${clientes.length})`}
                   </span>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 4, textAlign: 'right' }}>
@@ -350,7 +352,7 @@ export default function CheckInModal({
                               flexShrink: 0,
                             }}>{i + 1}</span>
                           )}
-                          <span className="room-rental" style={{ margin: 0 }}>
+                          <span className={s.roomRental} style={{ margin: 0 }}>
                             {c.nombre}
                             {clientes.length > 1 && esTitular && (
                               <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, color: 'var(--accent)', background: 'var(--accent-light, #e3f2fd)', borderRadius: 4, padding: '1px 5px' }}>
@@ -363,21 +365,21 @@ export default function CheckInModal({
                     })}
                   </div>
                 </div>
-                <div className="summary-row">
-                  <span className="room-num">Habitación</span>
-                  <span className="room-rental" style={{ textAlign: 'right' }}>
+                <div className={s.summaryRow}>
+                  <span className={s.roomNum}>Habitación</span>
+                  <span className={s.roomRental} style={{ textAlign: 'right' }}>
                     {selectedRoom ? `${selectedRoom.numero} — ${selectedRoom.tipoHabitacion?.nombre}` : '—'}
                   </span>
                 </div>
-                <div className="summary-row">
-                  <span className="room-num">Modalidad</span>
-                  <span className="room-rental" style={{ textAlign: 'right' }}>
+                <div className={s.summaryRow}>
+                  <span className={s.roomNum}>Modalidad</span>
+                  <span className={s.roomRental} style={{ textAlign: 'right' }}>
                     {tiposAlquiler.find(t => String(t.id) === tipoAlquilerId)?.nombre || '—'} × {cantTiempo}
                   </span>
                 </div>
-                <div className="summary-row">
-                  <span className="room-num">Tarifa</span>
-                  <span className="room-price">
+                <div className={s.summaryRow}>
+                  <span className={s.roomNum}>Tarifa</span>
+                  <span className={s.roomPrice}>
                     {canViewTarifa
                       ? (matchingTarifa ? `S/ ${matchingTarifa.precio.toFixed(2)} /und` : 'Sin tarifa')
                       : 'Tarifa corporativa (solo admin)'}
@@ -385,9 +387,9 @@ export default function CheckInModal({
                 </div>
               </div>
               {matchingTarifa && canViewTarifa && (
-                <div className="summary-total">
+                <div className={s.summaryTotal}>
                   <strong>Total estimado:</strong>
-                  <strong className="total-amount">S/ {estimatedPrice.toFixed(2)}</strong>
+                  <strong className={s.totalAmount}>S/ {estimatedPrice.toFixed(2)}</strong>
                 </div>
               )}
             </div>
@@ -400,8 +402,8 @@ export default function CheckInModal({
                   </select>
                 </Field>
                 <Field label="Adelanto (opcional)">
-                  <div className="checkin-amount-wrap">
-                    <span className="checkin-amount-prefix">S/</span>
+                  <div className={s.checkinAmountWrap}>
+                    <span className={s.checkinAmountPrefix}>S/</span>
                     <input
                       type="text"
                       inputMode="decimal"
@@ -409,7 +411,7 @@ export default function CheckInModal({
                       onChange={(e) => handleAdelantoChange(e.target.value)}
                       placeholder="0.00"
                       style={inputStyle}
-                      className="checkin-amount-input"
+                      className={s.checkinAmountInput}
                       onFocus={inputFocus}
                       onBlur={inputBlur}
                     />
@@ -419,7 +421,7 @@ export default function CheckInModal({
             )}
           </div>
 
-          <div className="step-footer">
+          <div className={s.stepFooter}>
             <Btn variant="ghost" onClick={() => setStep(3)}>
               ← Atrás
             </Btn>

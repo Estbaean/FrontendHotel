@@ -1,10 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useHotel } from '../../context/HotelContext';
-import { Table, Btn, Field, Modal, ConfirmDialog, EmptyState, Pagination, Card, RSelect, tdStyle, inputStyle, SearchInput, filterLabel, PageHeader, useToast } from '../../components/UI/index.jsx';
+import { Table, Btn, Field, Modal, ConfirmDialog, EmptyState, Pagination, Card, tdStyle, inputStyle, PageHeader, useToast } from '../../components/UI/index.jsx';
+import PageToolbar from '../../components/PageToolbar';
 import { UserCog, Plus, KeyRound } from 'lucide-react';
 import { getRecepcionistas, postRecepcionista, putRecepcionista, resetRecepcionistaPassword } from '../../api/usuarios';
 import { COUNTRY_DIAL_OPTIONS, parseIntlPhone, buildIntlPhone } from '../../utils/phone';
 import { buildTiposDocPermitidos } from '../../utils/formHelpers';
+import s from '../../styles/shared.module.css';
 
 const PER_PAGE = 10;
 
@@ -166,23 +168,12 @@ export default function Usuarios() {
         <Btn icon={<Plus size={14} />} onClick={openNew}>Nuevo Recepcionista</Btn>
       </PageHeader>
 
-      <Card padding="12px 16px" style={{ marginBottom: 18 }}>
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-end' }}>
-          <div style={{ minWidth: 220, flex: 1 }}>
-            <label style={filterLabel}>Buscar</label>
-            <SearchInput value={search} onChange={v => { setSearch(v); setPage(1); }} placeholder="Nombre, documento, teléfono…" />
-          </div>
-          <div>
-            <label style={filterLabel}>Tipo documento</label>
-            <RSelect
-              value={filterTipoDoc}
-              onValueChange={v => { setFilterTipoDoc(v); setPage(1); }}
-              placeholder="Todos"
-              options={tiposDocumentoPermitidos.map(td => ({ value: td.nombre, label: td.nombre }))}
-            />
-          </div>
-        </div>
-      </Card>
+      <PageToolbar>
+        <PageToolbar.Row inline>
+          <PageToolbar.Search value={search} onChange={v => { setSearch(v); setPage(1); }} placeholder="Nombre, documento, teléfono…" />
+          <PageToolbar.Filter label="Tipo documento" value={filterTipoDoc} onChange={v => { setFilterTipoDoc(v); setPage(1); }} options={tiposDocumentoPermitidos.map(td => ({ value: td.nombre, label: td.nombre }))} placeholder="Todos" />
+        </PageToolbar.Row>
+      </PageToolbar>
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: '48px 0', color: 'var(--text-2)', fontSize: 14 }}>Cargando recepcionistas…</div>
@@ -193,24 +184,18 @@ export default function Usuarios() {
           <Table headers={['Nombre', 'Documento', 'Tipo Doc.', 'Teléfono', 'Rol', '']}>
             {paged.map(u => (
               <tr key={u.id}
-                onMouseEnter={e => e.currentTarget.style.background = 'var(--bg)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                style={{ transition: 'background .12s' }}
               >
                 <td style={tdStyle}><span style={{ fontWeight: 600 }}>{u.nombre}</span></td>
                 <td style={tdStyle}>{u.numDocumento}</td>
                 <td style={tdStyle}>{u.tipoDocumento?.nombre || '—'}</td>
                 <td style={tdStyle}>{u.telefono || '—'}</td>
                 <td style={tdStyle}>
-                  <span style={{
-                    padding: '2px 8px', borderRadius: 'var(--r-sm, 4px)', fontSize: 11, fontWeight: 600,
-                    background: 'var(--accent-light, #e3f2fd)', color: 'var(--accent)',
-                  }}>
+                  <span className={s.badgeAccent}>
                     Recepcionista
                   </span>
                 </td>
                 <td style={{ ...tdStyle, width: 140 }}>
-                  <div style={{ display: 'flex', gap: 4 }}>
+                  <div className={s.actionRow}>
                     <Btn variant="ghost" style={{ fontSize: 11, padding: '3px 8px' }} onClick={() => openEdit(u)}>Editar</Btn>
                     <Btn variant="ghost" style={{ fontSize: 11, padding: '3px 8px' }} onClick={() => { setResetModal(u.id); setNewPassword(''); }}
                       icon={<KeyRound size={12} />}>
@@ -251,7 +236,7 @@ export default function Usuarios() {
           </select>
         </Field>
         <Field label="Teléfono">
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(140px, 38%) 1fr', gap: 8 }}>
+          <div className={s.phoneGrid}>
             <select
               style={inputStyle}
               value={form.telefonoCountry || 'PE'}
@@ -269,7 +254,7 @@ export default function Usuarios() {
             />
           </div>
         </Field>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
+        <div className={s.modalFooter}>
           <Btn variant="ghost" onClick={() => setModalOpen(false)}>Cancelar</Btn>
           <Btn onClick={handleSubmit} disabled={submitting}>{editId ? 'Guardar cambios' : 'Crear'}</Btn>
         </div>
@@ -283,7 +268,7 @@ export default function Usuarios() {
         <Field label="Nueva contraseña" required>
           <input style={inputStyle} type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Nueva contraseña" />
         </Field>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
+        <div className={s.modalFooter}>
           <Btn variant="ghost" onClick={() => setResetModal(null)}>Cancelar</Btn>
           <Btn onClick={handleResetPassword}>Resetear</Btn>
         </div>

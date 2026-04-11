@@ -1,0 +1,123 @@
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: linear-gradient(135deg, var(--accent-light) 0%, var(--bg) 50%, var(--surface-2) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.decor {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.decorTop {
+  composes: decor;
+  top: -15%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(212,134,12,.07) 0%, transparent 70%);
+}
+
+.decorBottom {
+  composes: decor;
+  bottom: -20%;
+  left: -5%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(212,134,12,.05) 0%, transparent 70%);
+}
+
+.card {
+  width: 100%;
+  max-width: 400px;
+  padding: 36px 32px;
+  margin: 0 16px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  z-index: 1;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.logo {
+  width: 170px;
+  height: auto;
+  object-fit: contain;
+  margin-bottom: 14px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 6px 0 0;
+}
+
+.fieldLabel {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  font-size: 14px;
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+
+.input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(212,134,12,.15);
+}
+
+.group {
+  margin-bottom: 16px;
+}
+
+.groupLast {
+  composes: group;
+  margin-bottom: 24px;
+}
+
+.error {
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  background: var(--red-bg);
+  border: 1px solid var(--red-border);
+  border-radius: var(--r-md);
+  color: var(--red);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.footer {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-xmuted);
+  margin-top: 24px;
+  margin-bottom: 0;
+}

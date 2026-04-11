@@ -1,21 +1,25 @@
 import { useState } from 'react';
 import { useHotel } from '../../context/HotelContext';
+import { useAuth } from '../../context/AuthContext';
 import { ESTADOS } from '../../constants/estados';
 import {
   Btn, Badge, Card, Table, tdStyle, EditBtn, DeleteBtn,
-  Modal, ConfirmDialog, RSelect, SearchInput,
+  Modal, ConfirmDialog, RSelect,
   EmptyState, Pagination, Field, inputStyle, inputFocus, inputBlur,
-  useToast, PopoverMenu, PageHeader, filterLabel,
+  useToast, PopoverMenu, PageHeader,
 } from '../../components/UI/index.jsx';
+import PageToolbar from '../../components/PageToolbar';
 import { Plus, BedDouble, FileText } from 'lucide-react';
 import { getReporteMensualHabitacion } from '../../api/alquileres';
 import { generarReporteMensualHabitacion } from '../../utils/reportesPdf';
+import s from '../../styles/shared.module.css';
 
 const PER_PAGE = 8;
 const empty = { numero:'', piso:'', tipoHabitacionId:'', descripcion:'', estado:'DISPONIBLE' };
 
 export default function Habitaciones() {
-  const { habitaciones, tiposHabitacion, pisos, addHabitacion, updateHabitacion, deleteHabitacion, cambiarEstado, userRole } = useHotel();
+  const { userRole } = useAuth();
+  const { habitaciones, tiposHabitacion, pisos, addHabitacion, updateHabitacion, deleteHabitacion, cambiarEstado } = useHotel();
   const readOnly = userRole === 'recepcion';
   const addToast = useToast();
   const [modalOpen, setModalOpen] = useState(false);
@@ -131,22 +135,13 @@ export default function Habitaciones() {
       </PageHeader>
 
       {/* Filtros */}
-      <Card padding="12px 16px" style={{ marginBottom:18 }}>
-        <div style={{ display:'flex', flexWrap:'wrap', gap:12, alignItems:'flex-end' }}>
-          <div style={{ flex:1, minWidth:180 }}>
-            <label style={filterLabel}>Buscar</label>
-            <SearchInput value={busqueda} onChange={v=>{setBusqueda(v); setPage(1);}} placeholder="Número de habitación…" />
-          </div>
-          <div>
-            <label style={filterLabel}>Estado</label>
-            <RSelect value={fEstado}  onValueChange={v=>{setFEstado(v); setPage(1);}} placeholder="Todos" options={ESTADO_KEYS.map(k=>({value:k,label:k}))} />
-          </div>
-          <div>
-            <label style={filterLabel}>Piso</label>
-            <RSelect value={fPiso}    onValueChange={v=>{setFPiso(v);   setPage(1);}} placeholder="Todos" options={pisos.map(p=>({value:String(p),label:`Piso ${p}`}))} />
-          </div>
-        </div>
-      </Card>
+      <PageToolbar>
+        <PageToolbar.Row inline>
+          <PageToolbar.Search value={busqueda} onChange={v=>{setBusqueda(v); setPage(1);}} placeholder="Número de habitación…" />
+          <PageToolbar.Filter label="Estado" value={fEstado} onChange={v=>{setFEstado(v); setPage(1);}} placeholder="Todos" options={ESTADO_KEYS.map(k=>({value:k,label:k}))} />
+          <PageToolbar.Filter label="Piso" value={fPiso} onChange={v=>{setFPiso(v); setPage(1);}} placeholder="Todos" options={pisos.map(p=>({value:String(p),label:`Piso ${p}`}))} />
+        </PageToolbar.Row>
+      </PageToolbar>
 
       <Card>
         {paged.length === 0 ? (
@@ -157,9 +152,6 @@ export default function Habitaciones() {
               const est = ESTADOS[hab.estado] || ESTADOS.DISPONIBLE;
               return (
                 <tr key={hab.id}
-                  onMouseEnter={e=>e.currentTarget.style.background='var(--bg)'}
-                  onMouseLeave={e=>e.currentTarget.style.background='transparent'}
-                  style={{ transition:'background .12s' }}
                 >
                   <td style={{ ...tdStyle, color:'var(--text-xmuted)', width:36, fontSize:12 }}>{(page-1)*PER_PAGE+idx+1}</td>
                   <td style={{ ...tdStyle, fontWeight:700 }}>{hab.numero}</td>
@@ -188,6 +180,7 @@ export default function Habitaciones() {
                                   border:'none', background:'transparent', cursor:'pointer',
                                   fontSize:12.5, fontWeight:600, color: e.color,
                                   textAlign:'left', width:'100%',
+                                  transition:'background .12s',
                                 }}
                                 onMouseEnter={ev => ev.currentTarget.style.background = e.bg}
                                 onMouseLeave={ev => ev.currentTarget.style.background = 'transparent'}
@@ -202,7 +195,7 @@ export default function Habitaciones() {
                     </div>
                   </td>
                   <td style={{ ...tdStyle, width: 'auto' }}>
-                    <div style={{ display:'flex', gap:5, flexWrap:'wrap' }}>
+                    <div className={s.actionRow} style={{ flexWrap:'wrap' }}>
                       <Btn variant="ghost" style={{ fontSize: 11, padding: '3px 8px' }}
                         icon={<FileText size={12} />}
                         onClick={() => setReporteMensualHab(hab)}
@@ -248,7 +241,7 @@ export default function Habitaciones() {
             <Field label="Estado">
               <RSelect value={form.estado} onValueChange={v=>set('estado',v)} options={ESTADO_KEYS.map(k=>({value:k,label:k}))} triggerStyle={{ width:'100%', minWidth:'unset' }} />
             </Field>
-            <div style={{ display:'flex', justifyContent:'flex-end', gap:8, marginTop:8, paddingTop:8, borderTop:'1px solid var(--border)' }}>
+            <div className={s.modalFooterBorder}>
               <Btn variant="ghost" onClick={()=>setModalOpen(false)}>Cancelar</Btn>
               <Btn onClick={handleSubmit} disabled={submitting}>{editId?'Guardar cambios':'Crear habitación'}</Btn>
             </div>
@@ -280,7 +273,7 @@ export default function Habitaciones() {
             <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 12 }}>
               Hab. <strong>{reporteMensualHab.numero}</strong> — {reporteMensualHab.tipoHabitacion?.nombre} · Piso {reporteMensualHab.piso}
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div className={s.formGrid2}>
               <Field label="Mes">
                 <select value={reporteMes} onChange={e => setReporteMes(e.target.value)} style={inputStyle}>
                   {['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'].map((m, i) => (
@@ -296,7 +289,7 @@ export default function Habitaciones() {
                 </select>
               </Field>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
+            <div className={s.modalFooter}>
               <Btn variant="ghost" onClick={() => setReporteMensualHab(null)}>Cancelar</Btn>
               <Btn icon={<FileText size={14} />} onClick={handleGenerarReporteMensual} disabled={reporteLoading}>
                 {reporteLoading ? 'Generando…' : 'Descargar PDF'}

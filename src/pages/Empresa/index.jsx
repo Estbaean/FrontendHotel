@@ -1,9 +1,11 @@
 import { useHotel } from '../../context/HotelContext';
+import { useAuth } from '../../context/AuthContext';
 import GenericCRUD from '../../components/GenericCRUD.jsx';
 import { Building2 } from 'lucide-react';
 
 export default function Empresa() {
-  const { empresas, addEmpresa, updateEmpresa, deleteEmpresa, userRole } = useHotel();
+  const { userRole } = useAuth();
+  const { empresas, addEmpresa, updateEmpresa, deleteEmpresa } = useHotel();
   const readOnly = userRole !== 'admin';
 
   const columns = [

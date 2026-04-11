@@ -453,13 +453,6 @@ function PopoverMenu({ trigger, children }) {
 }
 export { PopoverMenu, Popover };
 
-/* ─── ETIQUETA DE FILTRO ─────────────────────────────── */
-export const filterLabel = {
-  display: 'block', fontSize: 11.5, fontWeight: 600,
-  color: 'var(--text-muted)', marginBottom: 4,
-  textTransform: 'uppercase', letterSpacing: '.5px',
-};
-
 /* ─── CABECERA DE PÁGINA ─────────────────────────────── */
 export function PageHeader({ title, subtitle, children }) {
   return (

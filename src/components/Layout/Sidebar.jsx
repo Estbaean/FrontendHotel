@@ -1,9 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, BedDouble, DollarSign, Hotel, Users, Building2, Settings, ClipboardList, X } from 'lucide-react';
-import { useHotel } from '../../context/HotelContext';
+import { useAuth } from '../../context/AuthContext';
+import ls from './Layout.module.css';
 
 export default function Sidebar({ open, onClose }) {
-  const { userRole } = useHotel();
+  const { userRole } = useAuth();
   const { pathname } = useLocation();
 
   const NAV_ADMIN = [
@@ -29,7 +30,7 @@ export default function Sidebar({ open, onClose }) {
 
   const NAV = userRole === 'admin' ? NAV_ADMIN : NAV_RECEPCION;
   return (
-    <aside className={`sidebar${open ? ' sidebar--open' : ''}`}>
+    <aside className={`${ls.sidebar}${open ? ` ${ls.sidebarOpen}` : ''}`}>
       <div style={s.logo}>
         <img src="/logo.png" alt="Hospedaje ARROYO" style={s.logoImg} onError={e => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
         <div style={{ ...s.logoMark, display: 'none' }}>
@@ -39,7 +40,7 @@ export default function Sidebar({ open, onClose }) {
           <div style={s.logoName}>Hospedaje ARROYO</div>
           <div style={s.logoTag}>Sistema de gestión</div>
         </div>
-        <button className="sidebar-close" onClick={onClose} style={{
+        <button className={ls.sidebarClose} onClick={onClose} style={{
           border: 'none', background: 'none', cursor: 'pointer', padding: 4,
           color: 'var(--text-muted)',
         }}>

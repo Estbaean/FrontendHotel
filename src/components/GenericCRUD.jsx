@@ -1,12 +1,14 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Btn, Card, Table, tdStyle, EditBtn, DeleteBtn,
   Modal, ConfirmDialog, EmptyState, Pagination,
   Field, inputStyle, inputFocus, inputBlur, SwitchField,
-  PageHeader, SearchInput, filterLabel, useToast,
+  PageHeader, SearchInput, useToast,
 } from './UI/index.jsx';
+import { FilterLabel } from './Filters';
 import { Plus } from 'lucide-react';
 import { COUNTRY_DIAL_OPTIONS, parseIntlPhone, buildIntlPhone } from '../utils/phone';
+import s from '../styles/shared.module.css';
 
 const PER_PAGE = 10;
 
@@ -22,6 +24,8 @@ export default function GenericCRUD({
   searchPlaceholder = 'Buscar…',
   searchKeys,
   toolbarPrefix,
+  hideToolbarAdd = false,
+  triggerNew = 0,
 }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -62,6 +66,7 @@ export default function GenericCRUD({
   };
 
   const openNew  = () => { setEditId(null); setForm(buildEmpty()); setErrors({}); setModalOpen(true); };
+  useEffect(() => { if (triggerNew > 0) openNew(); }, [triggerNew]);
   const openEdit = (item) => {
     setEditId(item.id);
     const obj = {};
@@ -137,14 +142,14 @@ export default function GenericCRUD({
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: toolbarPrefix ? 'center' : 'flex-end' }}>
           {toolbarPrefix}
           <div style={{ flex: 1, minWidth: 180 }}>
-            {!toolbarPrefix && <label style={filterLabel}>Buscar</label>}
+            {!toolbarPrefix && <FilterLabel small>Buscar</FilterLabel>}
             <SearchInput
               value={search}
               onChange={v => { setSearch(v); setPage(1); }}
               placeholder={searchPlaceholder}
             />
           </div>
-          {!pageTitle && !readOnly && (
+          {!pageTitle && !readOnly && !hideToolbarAdd && (
             <Btn icon={<Plus size={14}/>} onClick={openNew} style={{ marginBottom: 1 }}>Nuevo</Btn>
           )}
         </div>
@@ -156,11 +161,7 @@ export default function GenericCRUD({
         ) : (
           <Table headers={[...columns.map(c=>c.label),'']}>
             {paged.map(item => (
-              <tr key={item.id}
-                onMouseEnter={e=>e.currentTarget.style.background='var(--bg)'}
-                onMouseLeave={e=>e.currentTarget.style.background='transparent'}
-                style={{ transition:'background .12s' }}
-              >
+              <tr key={item.id}>
                 {columns.map(col => (
                   <td key={col.key} style={tdStyle}>
                     {col.render ? col.render(item) : (item[col.key] ?? '—')}
@@ -168,7 +169,7 @@ export default function GenericCRUD({
                 ))}
                 <td style={{ ...tdStyle, width: readOnly ? 0 : 80, padding: readOnly ? 0 : 'inherit' }}>
                   {!readOnly && (
-                    <div style={{ display:'flex', gap:5 }}>
+                    <div className={s.actionRow}>
                       <EditBtn   onClick={()=>openEdit(item)} />
                       <DeleteBtn onClick={()=>setConfirmId(item.id)} />
                     </div>
@@ -243,7 +244,7 @@ export default function GenericCRUD({
                   rows={f.rows ?? 3}
                 />
               ) : f.type === 'phoneIntl' ? (
-                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(160px, 42%) 1fr', gap: '8px' }}>
+                <div className={s.phoneGrid}>
                   <select
                     style={controlStyle}
                     value={form[`${f.key}Country`] ?? 'PE'}
@@ -290,7 +291,7 @@ export default function GenericCRUD({
               />
             </Field>
           )}
-          <div style={{ display:'flex', justifyContent:'flex-end', gap:8, marginTop:8, paddingTop:8, borderTop:'1px solid var(--border)' }}>
+          <div className={s.modalFooterBorder}>
             <Btn variant="ghost" onClick={()=>setModalOpen(false)}>Cancelar</Btn>
             <Btn onClick={handleSubmit} disabled={submitting}>{editId ? 'Guardar cambios' : 'Crear'}</Btn>
           </div>

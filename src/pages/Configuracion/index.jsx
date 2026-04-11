@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useHotel } from '../../context/HotelContext';
-import { PageHeader, TabBtn } from '../../components/UI/index.jsx';
+import { PageHeader, Btn } from '../../components/UI/index.jsx';
 import GenericCRUD from '../../components/GenericCRUD.jsx';
-import { BedDouble, Clock } from 'lucide-react';
+import { BedDouble, Clock, Plus } from 'lucide-react';
+import s from '../../styles/shared.module.css';
 
 export default function Configuracion() {
   const {
@@ -12,18 +13,34 @@ export default function Configuracion() {
   } = useHotel();
 
   const readOnly = userRole !== 'admin';
-  const [tab, setTab] = useState('habitacion'); // 'habitacion' | 'alquiler'
-
-  const tabs = (
-    <div style={{ display: 'flex', gap: 4 }}>
-      <TabBtn active={tab === 'habitacion'} onClick={() => setTab('habitacion')} label="Tipos de Habitación" count={tiposHabitacion.length} />
-      <TabBtn active={tab === 'alquiler'} onClick={() => setTab('alquiler')} label="Tipos de Alquiler" count={tiposAlquiler.length} />
-    </div>
-  );
+  const [tab, setTab] = useState('habitacion');
+  const [triggerNew, setTriggerNew] = useState(0);
 
   return (
     <div className="page-anim">
-      <PageHeader title="Configuración" subtitle="Tipos de habitación y alquiler" />
+      <PageHeader title="Configuración" subtitle="Tipos de habitación y alquiler">
+        {!readOnly && (
+          <Btn icon={<Plus size={14} />} onClick={() => setTriggerNew(n => n + 1)}>
+            {tab === 'habitacion' ? 'Nuevo Tipo Habitación' : 'Nuevo Tipo Alquiler'}
+          </Btn>
+        )}
+      </PageHeader>
+
+      {/* Tab selector */}
+      <div className={s.tabBar}>
+        <button onClick={() => { setTab('habitacion'); setTriggerNew(0); }} className={tab === 'habitacion' ? s.tabBtnActive : s.tabBtn}>
+          Tipos de Habitación
+          <span className={s.tabBadge} style={{ background: 'var(--accent)' }}>
+            {tiposHabitacion.length}
+          </span>
+        </button>
+        <button onClick={() => { setTab('alquiler'); setTriggerNew(0); }} className={tab === 'alquiler' ? s.tabBtnActive : s.tabBtn}>
+          Tipos de Alquiler
+          <span className={s.tabBadge} style={{ background: 'var(--text-muted)' }}>
+            {tiposAlquiler.length}
+          </span>
+        </button>
+      </div>
 
       {tab === 'habitacion' && (
         <GenericCRUD
@@ -37,7 +54,8 @@ export default function Configuracion() {
           emptyIcon={<BedDouble size={42} />}
           modalTitle="Tipo de Habitación"
           readOnly={readOnly}
-          toolbarPrefix={tabs}
+          hideToolbarAdd
+          triggerNew={triggerNew}
         />
       )}
 
@@ -64,7 +82,8 @@ export default function Configuracion() {
           emptyIcon={<Clock size={42} />}
           modalTitle="Tipo de Alquiler"
           readOnly={readOnly}
-          toolbarPrefix={tabs}
+          hideToolbarAdd
+          triggerNew={triggerNew}
         />
       )}
     </div>

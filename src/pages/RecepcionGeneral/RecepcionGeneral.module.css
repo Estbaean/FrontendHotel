@@ -1,0 +1,290 @@
+/* ═══ Stats grid ══════════════════════════════════════════════════════ */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.statCount {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.statLabel {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.statDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.statText {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .6px;
+  color: var(--text-xmuted);
+  text-transform: uppercase;
+}
+
+/* ═══ Room grid + card ════════════════════════════════════════════════ */
+.roomGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.roomCard {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: transform .15s ease, box-shadow .15s ease;
+  display: flex;
+  flex-direction: column;
+  min-height: 200px;
+}
+
+.roomCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.colorBar {
+  height: 3px;
+}
+
+.roomBody {
+  padding: 12px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* ═══ Status row + action buttons ═════════════════════════════════════ */
+.statusRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.actionGroup {
+  display: flex;
+  gap: 5px;
+}
+
+.iconBtn {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--r-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.readyBtn {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 8px;
+  border-radius: var(--r-sm);
+  background: var(--green-bg);
+  border: 1px solid var(--green-border, #a7f3d0);
+  color: var(--green);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ═══ Room number + meta ══════════════════════════════════════════════ */
+.roomNumberRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.roomNumber {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.roomMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.roomType {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+
+.roomFloor {
+  font-size: 10px;
+  color: var(--text-xmuted);
+}
+
+/* ═══ Guest info section ══════════════════════════════════════════════ */
+.guestRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.guestName {
+  font-size: 12px;
+  color: var(--text);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.tagsRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+/* ═══ Tags ════════════════════════════════════════════════════════════ */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .3px;
+  padding: 2px 6px;
+  border-radius: var(--r-sm);
+  text-transform: uppercase;
+}
+
+.tagMuted {
+  composes: tag;
+  background: var(--surface-2);
+  color: var(--text-2);
+}
+
+.tagAccent {
+  composes: tag;
+  background: var(--accent-light);
+  color: var(--accent-dark);
+  border: 1px solid var(--accent);
+}
+
+.tagTime {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--text-xmuted);
+}
+
+.tagExcedido {
+  composes: tag;
+  font-size: 9px;
+  color: #fff;
+  background: var(--red, #e53935);
+  padding: 1px 6px;
+  letter-spacing: .5px;
+  animation: pulse-badge 1.5s ease-in-out infinite;
+}
+
+/* ═══ Pending amount row ══════════════════════════════════════════════ */
+.pendingRow {
+  margin-top: 8px;
+  padding: 6px 8px;
+  border-radius: var(--r-sm);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pendingLabel {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+
+.pendingAmount {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.pendingCorp {
+  font-size: 11px;
+  color: var(--text-xmuted);
+  cursor: help;
+}
+
+/* ═══ Empty footer ════════════════════════════════════════════════════ */
+.emptyFooter {
+  margin-top: 10px;
+  padding-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-xmuted);
+  font-size: 10.5px;
+}
+
+.emptyDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  opacity: .4;
+}
+
+/* ═══ Popover menu ════════════════════════════════════════════════════ */
+.popoverContent {
+  background: var(--surface);
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  padding: 8px;
+  width: 140px;
+  z-index: 1000;
+}
+
+.popoverTitle {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.popoverList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.popoverBtn {
+  padding: 6px 8px;
+  border-radius: var(--r-sm);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+}

@@ -1,0 +1,118 @@
+.filterLabel {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-xmuted);
+  margin-bottom: 8px;
+}
+.filterLabelSmall {
+  composes: filterLabel;
+  margin-bottom: 4px;
+}
+
+/* ── Toggle button ────────────────────────────── */
+.toggleBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.12s, border-color 0.12s;
+}
+.toggleBtn.idle {
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+}
+.toggleBtn.active {
+  border: 1.5px solid var(--accent);
+  background: var(--accent-light, #e3f2fd);
+  color: var(--accent);
+}
+.badge {
+  background: var(--accent);
+  color: #fff;
+  border-radius: 999px;
+  padding: 1px 7px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ── Filter panel (collapsible) ───────────────── */
+.panel {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Pills (shown when panel closed + filters active) */
+.pills {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+.pill {
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.pillBlue   { composes: pill; background: #e3f2fd; color: #1565c0; }
+.pillPurple { composes: pill; background: #f3e5f5; color: #7b1fa2; }
+.pillOrange { composes: pill; background: #fff3e0; color: #e65100; }
+.pillGray   { composes: pill; background: var(--surface-2, #f5f5f5); color: var(--text-2); }
+
+/* ── Date range row ───────────────────────────── */
+.dateRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.dateField {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.dateFieldLabel {
+  font-size: 12px;
+  color: var(--text-2);
+}
+.clearDatesBtn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--red, #e53935);
+}
+
+/* ── Chip group ───────────────────────────────── */
+.chipRow {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* ── Inline filter bar (simpler pages) ────────── */
+.inlineBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+}
+.inlineBarField {
+  flex: 1 1 220px;
+  min-width: 180px;
+}

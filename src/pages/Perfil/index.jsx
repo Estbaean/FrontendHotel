@@ -1,10 +1,12 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useHotel } from '../../context/HotelContext';
+import { useAuth } from '../../context/AuthContext';
 import { Card, Field, Btn, Modal, useToast } from '../../components/UI/index.jsx';
 import { User, KeyRound, Pencil } from 'lucide-react';
 import { getMe, updateMe, changePassword } from '../../api/usuarios';
 import { COUNTRY_DIAL_OPTIONS, parseIntlPhone, buildIntlPhone } from '../../utils/phone';
 import { buildTiposDocPermitidos } from '../../utils/formHelpers';
+import s from '../../styles/shared.module.css';
 
 const inputStyle = {
   width: '100%', padding: '8px 12px', borderRadius: 'var(--r-md, 8px)',
@@ -13,7 +15,8 @@ const inputStyle = {
 };
 
 export default function Perfil() {
-  const { userName, userRole, tiposDocumento } = useHotel();
+  const { userName, userRole } = useAuth();
+  const { tiposDocumento } = useHotel();
   const addToast = useToast();
   const tiposDocumentoPermitidos = buildTiposDocPermitidos(tiposDocumento);
 
@@ -179,7 +182,7 @@ export default function Perfil() {
           </select>
         </Field>
         <Field label="Teléfono">
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(140px, 38%) 1fr', gap: 8 }}>
+          <div className={s.phoneGrid}>
             <select
               style={inputStyle}
               value={editForm.telefonoCountry || 'PE'}
@@ -197,7 +200,7 @@ export default function Perfil() {
             />
           </div>
         </Field>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
+        <div className={s.modalFooter}>
           <Btn variant="ghost" onClick={() => setEditOpen(false)}>Cancelar</Btn>
           <Btn onClick={handleEditSubmit} disabled={submitting}>Guardar cambios</Btn>
         </div>
@@ -214,7 +217,7 @@ export default function Perfil() {
         <Field label="Confirmar nueva contraseña" error={passErrors.confirmPassword} required>
           <input style={inputStyle} type="password" value={passForm.confirmPassword || ''} onChange={e => setPassForm(p => ({ ...p, confirmPassword: e.target.value }))} />
         </Field>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
+        <div className={s.modalFooter}>
           <Btn variant="ghost" onClick={() => setPassOpen(false)}>Cancelar</Btn>
           <Btn onClick={handleChangePassword} disabled={submitting}>Cambiar</Btn>
         </div>
@@ -226,7 +229,7 @@ export default function Perfil() {
 function InfoRow({ label, value }) {
   return (
     <div>
-      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 3 }}>{label}</div>
+      <div className={s.summaryLabel}>{label}</div>
       <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)' }}>{value}</div>
     </div>
   );

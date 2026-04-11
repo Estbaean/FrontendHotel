@@ -1,14 +1,18 @@
 import { useState, useMemo } from 'react';
 import { useHotel } from '../../context/HotelContext';
-import { RSelect, SearchInput, Table, Btn, Field, Modal, ConfirmDialog, Card, EmptyState, Pagination, EditBtn, DeleteBtn, PageHeader, tdStyle, filterLabel, inputStyle, useToast } from '../../components/UI/index.jsx';
+import { useAuth } from '../../context/AuthContext';
+import { Table, Btn, Field, Modal, ConfirmDialog, Card, EmptyState, Pagination, EditBtn, DeleteBtn, PageHeader, tdStyle, inputStyle, useToast } from '../../components/UI/index.jsx';
+import PageToolbar from '../../components/PageToolbar';
 import { Plus, DollarSign } from 'lucide-react';
 import { sanitizeDecimal } from '../../utils/formHelpers';
 import styles from './Tarifas.module.css';
+import s from '../../styles/shared.module.css';
 
 const PER_PAGE = 12;
 
 export default function Tarifas() {
-  const { tarifas, tiposHabitacion, tiposAlquiler, addTarifa, updateTarifa, deleteTarifa, incrementarTarifasPorcentaje, userRole } = useHotel();
+  const { userRole } = useAuth();
+  const { tarifas, tiposHabitacion, tiposAlquiler, addTarifa, updateTarifa, deleteTarifa, incrementarTarifasPorcentaje } = useHotel();
   const addToast = useToast();
   const isAdmin = userRole === 'admin';
 
@@ -176,18 +180,12 @@ export default function Tarifas() {
         )}
       </PageHeader>
 
-      <Card padding="12px 16px" style={{ marginBottom: 18 }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'flex-end' }}>
-          <div style={{ flex: 1, minWidth: 180 }}>
-            <label style={filterLabel}>Buscar</label>
-            <SearchInput value={search} onChange={v => { setSearch(v); setPage(1); }} placeholder="Precio, tipo…" />
-          </div>
-          <div>
-            <label style={filterLabel}>Tipo de Alquiler</label>
-            <RSelect value={filterTipoAlq || '0'} onValueChange={v => { setFilterTipoAlq(v); setPage(1); }} options={tipoAlqOptions} />
-          </div>
-        </div>
-      </Card>
+      <PageToolbar>
+        <PageToolbar.Row inline>
+          <PageToolbar.Search value={search} onChange={v => { setSearch(v); setPage(1); }} placeholder="Precio, tipo…" />
+          <PageToolbar.Filter label="Tipo de Alquiler" value={filterTipoAlq || '0'} onChange={v => { setFilterTipoAlq(v); setPage(1); }} options={tipoAlqOptions} />
+        </PageToolbar.Row>
+      </PageToolbar>
 
       <Card>
         {paged.length === 0 ? (
@@ -198,11 +196,7 @@ export default function Tarifas() {
         ) : (
           <Table headers={['Tipo Habitación', 'Tipo Alquiler', 'Precio', '']}>
             {paged.map(tarifa => (
-              <tr key={tarifa.id}
-                onMouseEnter={e => e.currentTarget.style.background = 'var(--bg)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                style={{ transition: 'background .12s' }}
-              >
+              <tr key={tarifa.id}>
                 <td style={tdStyle}>{tarifa.tipoHabitacion?.nombre || '—'}</td>
                 <td style={tdStyle}>{tarifa.tipoAlquiler?.nombre || '—'}</td>
                 <td style={{ ...tdStyle, textAlign: 'right', width: 160 }}>
@@ -210,7 +204,7 @@ export default function Tarifas() {
                 </td>
                 <td style={{ ...tdStyle, textAlign: 'right' }}>
                   {isAdmin && (
-                    <div style={{ display: 'flex', gap: 6 }}>
+                    <div className={s.actionRow}>
                       <EditBtn onClick={() => openEdit(tarifa)} />
                       <DeleteBtn onClick={() => setConfirmId(tarifa.id)} />
                     </div>
@@ -262,7 +256,7 @@ export default function Tarifas() {
           </div>
         </Field>
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
+        <div className={s.modalFooter}>
           <Btn variant="ghost" onClick={() => setModalOpen(false)}>Cancelar</Btn>
           <Btn onClick={handleSubmit} disabled={submitting}>{editId ? 'Actualizar' : 'Crear'}</Btn>
         </div>
@@ -287,7 +281,7 @@ export default function Tarifas() {
         <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 0 }}>
           Esta acción incrementa todas las tarifas actuales con el porcentaje indicado.
         </p>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
+        <div className={s.modalFooter}>
           <Btn variant="ghost" onClick={() => setBulkModalOpen(false)}>Cancelar</Btn>
           <Btn onClick={handleIncrementoMasivo}>Aplicar incremento</Btn>
         </div>

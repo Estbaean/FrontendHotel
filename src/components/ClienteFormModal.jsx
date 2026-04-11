@@ -1,11 +1,14 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useHotel } from '../context/HotelContext.jsx';
+import { useAuth } from '../context/AuthContext';
 import { Field, Btn, Modal, inputStyle, useToast } from './UI/index.jsx';
 import { COUNTRY_DIAL_OPTIONS, parseIntlPhone, buildIntlPhone } from '../utils/phone';
 import { buildTiposDocPermitidos } from '../utils/formHelpers';
+import s from '../styles/shared.module.css';
 
 export default function ClienteFormModal({ open, onOpenChange, cliente, onSaved }) {
-  const { addCliente, updateCliente, empresas, userRole, tiposDocumento } = useHotel();
+  const { userRole } = useAuth();
+  const { addCliente, updateCliente, empresas, tiposDocumento } = useHotel();
   const addToast = useToast();
   const isAdmin = userRole === 'admin';
   const isEdit = Boolean(cliente);
@@ -32,11 +35,13 @@ export default function ClienteFormModal({ open, onOpenChange, cliente, onSaved 
     if (!open) return;
     if (cliente) {
       const parsed = parseIntlPhone(cliente.telefono || '');
-      const empresaId = cliente.empresaId
+      const rawEmpresaId = cliente.empresaId
         ? String(cliente.empresaId)
         : (cliente.empresaNombre
             ? String(empresas.find((e) => e.nombre === cliente.empresaNombre)?.id || '')
             : '');
+      // Si el empresaId no está en la lista (ej: placeholder "EMPRESA ELIMINADA"), ignorarlo
+      const empresaId = empresas.some((e) => String(e.id) === rawEmpresaId) ? rawEmpresaId : '';
       const hadEmpresa = Boolean(empresaId);
       setEditOriginalHadEmpresa(hadEmpresa);
       setForm({
@@ -170,7 +175,7 @@ export default function ClienteFormModal({ open, onOpenChange, cliente, onSaved 
         </Field>
 
         <Field label="Teléfono" error={errors.telefono}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(160px, 42%) 1fr', gap: '8px' }}>
+          <div className={s.phoneGrid}>
             <select
               style={inputStyle}
               value={form.telefonoCountry}
@@ -247,7 +252,7 @@ export default function ClienteFormModal({ open, onOpenChange, cliente, onSaved 
           </div>
         </Field>
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+        <div className={s.modalFooter}>
           <Btn onClick={handleSubmit}>Guardar</Btn>
         </div>
       </div>

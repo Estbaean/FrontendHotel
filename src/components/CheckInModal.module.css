@@ -11,13 +11,13 @@
   padding: 0 8px;
 }
 
-.stepper-item {
+.stepperItem {
   display: flex;
   align-items: center;
   gap: 0;
 }
 
-.stepper-circle {
+.stepperCircle {
   width: 28px;
   height: 28px;
   border-radius: 50%;
@@ -33,7 +33,7 @@
   transition: all 0.2s ease;
 }
 
-.stepper-label {
+.stepperLabel {
   font-size: 11px;
   font-weight: 600;
   color: var(--text-muted);
@@ -42,7 +42,7 @@
   transition: color 0.2s ease;
 }
 
-.stepper-line {
+.stepperLine {
   height: 2px;
   width: 32px;
   background: var(--border);
@@ -51,27 +51,27 @@
   transition: background 0.2s ease;
 }
 
-.stepper-item.active .stepper-circle {
+.stepperItem.active .stepperCircle {
   border-color: var(--accent);
   background: var(--accent);
   color: #fff;
 }
 
-.stepper-item.active .stepper-label {
+.stepperItem.active .stepperLabel {
   color: var(--accent-dark);
 }
 
-.stepper-item.done .stepper-circle {
+.stepperItem.done .stepperCircle {
   border-color: var(--accent);
   background: var(--accent-light);
   color: var(--accent);
 }
 
-.stepper-item.done .stepper-label {
+.stepperItem.done .stepperLabel {
   color: var(--accent);
 }
 
-.stepper-item.done .stepper-line {
+.stepperItem.done .stepperLine {
   background: var(--accent);
 }
 
@@ -79,19 +79,19 @@
 /* ESTRUCTURA GENERAL DEL MODAL DE CHECK-IN */
 /* ════════════════════════════════════════════════════════════════ */
 
-.step-wrapper {
+.stepWrapper {
   display: flex;
   flex-direction: column;
   gap: 24px;
   height: 100%;
 }
 
-.step-header {
+.stepHeader {
   border-bottom: 1px solid var(--border);
   padding-bottom: 16px;
 }
 
-.step-header h3 {
+.stepHeader h3 {
   font-size: 18px;
   font-weight: 700;
   color: var(--text);
@@ -99,13 +99,13 @@
   line-height: 1.2;
 }
 
-.step-description {
+.stepDescription {
   font-size: 13px;
   color: var(--text-muted);
   margin: 0;
 }
 
-.step-content {
+.stepContent {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -116,7 +116,7 @@
   padding: 0 2px 0 0;
 }
 
-.step-footer {
+.stepFooter {
   display: flex;
   gap: 12px;
   justify-content: flex-end;
@@ -125,7 +125,7 @@
   flex-shrink: 0;
 }
 
-.checkin-amount-wrap {
+.checkinAmountWrap {
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: center;
@@ -135,12 +135,12 @@
   transition: border-color .15s ease, box-shadow .15s ease;
 }
 
-.checkin-amount-wrap:focus-within {
+.checkinAmountWrap:focus-within {
   border-color: var(--accent);
   box-shadow: 0 0 0 2px var(--accent-light);
 }
 
-.checkin-amount-prefix {
+.checkinAmountPrefix {
   height: 100%;
   display: inline-flex;
   align-items: center;
@@ -155,7 +155,7 @@
   border-bottom-left-radius: var(--r-md);
 }
 
-.checkin-amount-input {
+.checkinAmountInput {
   border: none !important;
   background: transparent !important;
   box-shadow: none !important;
@@ -168,13 +168,13 @@
 /* PASO 1: CLIENTES */
 /* ════════════════════════════════════════════════════════════════ */
 
-.checkin-clients-section {
+.checkinClientsSection {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
-.clients-controls {
+.clientsControls {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -183,15 +183,15 @@
   max-width: 100%;
 }
 
-.clients-controls .search-input,
-.clients-controls input[type="search"],
-.clients-controls input[type="text"] {
+.clientsControls .searchInput,
+.clientsControls input[type="search"],
+.clientsControls input[type="text"] {
   flex: 1;
   max-width: 100%;
   min-width: 160px;
 }
 
-.clients-available-list {
+.clientsAvailableList {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -203,7 +203,7 @@
   background: transparent;
 }
 
-.client-row {
+.clientRow {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -214,17 +214,17 @@
   transition: all 0.2s ease;
 }
 
-.client-row:hover {
+.clientRow:hover {
   border-color: var(--border-strong);
   background: var(--bg);
 }
 
-.client-row.selected {
+.clientRow.selected {
   border-color: var(--accent);
   background: var(--accent-light);
 }
 
-.add-client-top {
+.addClientTop {
   width: 34px;
   height: 34px;
   border-radius: 50%;
@@ -239,8 +239,8 @@
   transition: all 0.18s ease;
 }
 
-.add-client-top:hover,
-.add-client-top.active {
+.addClientTop:hover,
+.addClientTop.active {
   background: var(--accent-light);
   border-color: var(--accent);
   color: var(--accent-dark);
@@ -248,7 +248,7 @@
 }
 
 /* ── Client row text ─── */
-.client-row-text {
+.clientRowText {
   display: flex;
   flex-direction: column;
   gap: 1px;
@@ -256,19 +256,19 @@
   flex: 1;
 }
 
-.client-row-doc {
+.clientRowDoc {
   font-size: 12px;
   color: var(--text-muted);
 }
 
-.client-row-empresa {
+.clientRowEmpresa {
   font-size: 11px;
   color: var(--accent-dark);
   font-weight: 500;
 }
 
 /* ── Client row actions pushed right ─── */
-.client-row-actions {
+.clientRowActions {
   display: flex;
   gap: 6px;
   align-items: center;
@@ -276,13 +276,13 @@
   flex-shrink: 0;
 }
 
-.client-row-actions button.rep-active {
+.clientRowActions button.repActive {
   background: var(--accent-light);
   border-color: var(--accent-mid, var(--accent));
   font-weight: 700;
 }
 
-.clients-list {
+.clientsList {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -294,11 +294,11 @@
   background: var(--surface);
 }
 
-.clients-list .client-item {
+.clientsList .clientItem {
   width: 100%;
 }
 
-.rudimentr-checkbox {
+.rudimentrCheckbox {
   all: unset;
   width: 20px;
   height: 20px;
@@ -313,17 +313,17 @@
   transition: all 0.15s ease;
 }
 
-.rudimentr-checkbox:hover {
+.rudimentrCheckbox:hover {
   border-color: var(--accent);
 }
 
-.rudimentr-checkbox[aria-checked='true'] {
+.rudimentrCheckbox[aria-checked='true'] {
   background: var(--accent);
   border-color: var(--accent);
   color: white;
 }
 
-.rudimentr-checkbox > span {
+.rudimentrCheckbox > span {
   width: 100%;
   height: 100%;
   display: flex;
@@ -332,11 +332,11 @@
   line-height: 0;
 }
 
-.rudimentr-checkbox svg {
+.rudimentrCheckbox svg {
   display: block;
 }
 
-.client-row {
+.clientRow {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -347,18 +347,18 @@
   transition: all 0.2s ease;
 }
 
-.client-row:hover {
+.clientRow:hover {
   border-color: var(--border-strong);
   box-shadow: var(--shadow-xs);
 }
 
-.client-row.selected {
+.clientRow.selected {
   border-color: var(--accent);
   background: var(--accent-light);
 }
 
-.client-row-actions button,
-.cliente-edit-row button {
+.clientRowActions button,
+.clienteEditRow button {
   border: 1px solid var(--border-strong);
   background: var(--surface);
   color: var(--text);
@@ -368,13 +368,13 @@
   transition: all 0.15s ease;
 }
 
-.client-row-actions button:hover,
-.cliente-edit-row button:hover {
+.clientRowActions button:hover,
+.clienteEditRow button:hover {
   border-color: var(--accent);
   color: var(--accent-dark);
 }
 
-.cliente-edit-row {
+.clienteEditRow {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -384,19 +384,19 @@
   border-radius: var(--r-md);
 }
 
-.cliente-edit-active .form-row {
+.clienteEditActive .formRow {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.cliente-edit-active .form-row label {
+.clienteEditActive .formRow label {
   font-size: 12px;
   font-weight: 700;
   color: var(--text-muted);
 }
 
-.cliente-edit-active .form-row input {
+.clienteEditActive .formRow input {
   width: 100%;
   padding: 8px 10px;
   border-radius: var(--r-sm);
@@ -404,14 +404,14 @@
   background: var(--surface);
 }
 
-.edit-actions {
+.editActions {
   display: flex;
   gap: 6px;
   margin-top: 5px;
 }
 
-.btn-primary,
-.btn-secondary {
+.btnPrimary,
+.btnSecondary {
   border: 1px solid transparent;
   border-radius: var(--r-sm);
   padding: 6px 10px;
@@ -419,23 +419,23 @@
   cursor: pointer;
 }
 
-.btn-primary {
+.btnPrimary {
   background: var(--accent);
   color: white;
 }
 
-.btn-secondary {
+.btnSecondary {
   background: var(--surface);
   border-color: var(--border-strong);
   color: var(--text);
 }
 
-.btn-primary:hover,
-.btn-secondary:hover {
+.btnPrimary:hover,
+.btnSecondary:hover {
   filter: brightness(0.95);
 }
 
-.empty-clients-state {
+.emptyClientsState {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -449,7 +449,7 @@
 }
 
 /* CheckInClienteList: no encontrado + crear nuevo */
-.cliente-selector-notfound {
+.clienteSelectorNotfound {
   margin-top: 14px;
   display: flex;
   justify-content: space-between;
@@ -461,14 +461,14 @@
   background: var(--surface);
 }
 
-.notfound-label {
+.notfoundLabel {
   color: var(--text-muted);
   font-size: 13px;
   font-weight: 600;
   flex: 1;
 }
 
-.notfound-add-btn {
+.notfoundAddBtn {
   width: 28px;
   height: 28px;
   border-radius: 50%;
@@ -482,26 +482,26 @@
   transition: transform 0.15s ease, background-color 0.15s ease;
 }
 
-.notfound-add-btn:hover {
+.notfoundAddBtn:hover {
   transform: translateY(-1px);
   background: var(--accent);
   color: white;
 }
 
 
-.empty-clients-state p {
+.emptyClientsState p {
   font-size: 14px;
   font-weight: 600;
   color: var(--text-2);
   margin: 8px 0 4px 0;
 }
 
-.empty-clients-state span {
+.emptyClientsState span {
   font-size: 12px;
   color: var(--text-muted);
 }
 
-.client-item {
+.clientItem {
   padding: 12px;
   border: 1px solid var(--border);
   border-radius: var(--r-md);
@@ -509,36 +509,36 @@
   transition: all 0.15s ease;
 }
 
-.client-item:hover {
+.clientItem:hover {
   border-color: var(--accent-mid);
   background: var(--bg);
 }
 
-.client-item.editing {
+.clientItem.editing {
   border-color: var(--accent);
   background: var(--accent-light);
   padding: 14px;
 }
 
-.client-form {
+.clientForm {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.client-display {
+.clientDisplay {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 12px;
 }
 
-.client-info {
+.clientInfo {
   flex: 1;
   min-width: 0;
 }
 
-.client-name {
+.clientName {
   font-weight: 700;
   font-size: 14px;
   color: var(--text);
@@ -546,7 +546,7 @@
   line-height: 1.2;
 }
 
-.client-details {
+.clientDetails {
   font-size: 11.5px;
   color: var(--text-muted);
   margin-top: 3px;
@@ -556,14 +556,14 @@
   align-items: center;
 }
 
-.doc-type {
+.docType {
   font-weight: 600;
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
 
-.doc-number {
+.docNumber {
   font-family: 'Monaco', 'Courier New', monospace;
   font-size: 11px;
   color: var(--text-2);
@@ -577,13 +577,13 @@
   color: var(--text-muted);
 }
 
-.client-actions {
+.clientActions {
   display: flex;
   gap: 4px;
   flex-shrink: 0;
 }
 
-.add-client-btn {
+.addClientBtn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -601,7 +601,7 @@
   font-family: inherit;
 }
 
-.add-client-btn:hover {
+.addClientBtn:hover {
   border-color: var(--accent);
   background: var(--accent-light);
   color: var(--accent-dark);
@@ -611,14 +611,14 @@
 /* PASO 2: TIPO DE ALQUILER */
 /* ════════════════════════════════════════════════════════════════ */
 
-.alquiler-grid {
+.alquilerGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
   margin-bottom: 16px;
 }
 
-.date-grid {
+.dateGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(160px, 1fr));
   gap: 14px;
@@ -627,12 +627,12 @@
   width: 100%;
 }
 
-.hours-controls {
+.hoursControls {
   margin-top: 10px;
   width: 100%;
 }
 
-.hours-only-wrap {
+.hoursOnlyWrap {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -645,7 +645,7 @@
   background: var(--surface);
 }
 
-.hours-only-wrap .hours-value {
+.hoursOnlyWrap .hoursValue {
   min-width: 70px;
   text-align: center;
   font-weight: 800;
@@ -653,7 +653,7 @@
   font-size: 2rem;
 }
 
-.hours-step {
+.hoursStep {
   border: 1px solid var(--border-strong);
   background: var(--surface);
   color: var(--text);
@@ -669,13 +669,13 @@
   transition: all 0.15s ease;
 }
 
-.hours-step:hover {
+.hoursStep:hover {
   border-color: var(--accent);
   color: var(--accent-dark);
   background: var(--accent-light);
 }
 
-.duration-display {
+.durationDisplay {
   margin-top: 18px;
   width: 100%;
   min-height: 96px;
@@ -690,25 +690,25 @@
   transition: all 0.2s ease;
 }
 
-.hours-controls + .duration-display { display: none; }
+.hoursControls + .durationDisplay { display: none; }
 
-.duration-display .duration-number {
+.durationDisplay .durationNumber {
   font-size: 44px;
   font-weight: 800;
   color: var(--accent);
 }
 
-.duration-display .duration-label {
+.durationDisplay .durationLabel {
   font-size: 14px;
   color: var(--accent-dark);
   text-transform: capitalize;
 }
 
-.duration-fixed {
+.durationFixed {
   min-height: 90px;
 }
 
-.salida-preview {
+.salidaPreview {
   margin-top: 14px;
   width: 100%;
   border: 2px solid var(--accent-light);
@@ -721,7 +721,7 @@
   gap: 2px;
 }
 
-.salida-preview-label {
+.salidaPreviewLabel {
   font-size: 12px;
   color: var(--muted);
   text-transform: uppercase;
@@ -729,19 +729,19 @@
   font-weight: 600;
 }
 
-.salida-preview-date {
+.salidaPreviewDate {
   font-size: 15px;
   font-weight: 700;
   color: var(--accent-dark);
 }
 
 @media (max-width: 600px) {
-  .date-grid {
+  .dateGrid {
     grid-template-columns: 1fr;
   }
 }
 
-.alquiler-card {
+.alquilerCard {
   padding: 20px 18px;
   border: 2px solid var(--border);
   border-radius: var(--r-md);
@@ -751,35 +751,35 @@
   background: var(--surface);
 }
 
-.alquiler-card:hover {
+.alquilerCard:hover {
   border-color: var(--accent-light);
   background: var(--accent-light);
 }
 
-.alquiler-card.selected {
+.alquilerCard.selected {
   border-color: var(--accent);
   background: var(--accent-light);
   box-shadow: inset 0 0 0 1px var(--accent);
 }
 
-.alquiler-title {
+.alquilerTitle {
   font-size: 16px;
   font-weight: 700;
   color: var(--text);
   margin: 0 0 4px 0;
 }
 
-.alquiler-card.selected .alquiler-title {
+.alquilerCard.selected .alquilerTitle {
   color: var(--accent-dark);
 }
 
-.alquiler-subtitle {
+.alquilerSubtitle {
   font-size: 12px;
   color: var(--text-muted);
   margin: 0;
 }
 
-.alquiler-card.selected .alquiler-subtitle {
+.alquilerCard.selected .alquilerSubtitle {
   color: var(--accent);
   font-weight: 500;
 }
@@ -788,13 +788,13 @@
 /* PASO 3: DURACIÓN */
 /* ════════════════════════════════════════════════════════════════ */
 
-.date-grid {
+.dateGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
 
-.duration-display {
+.durationDisplay {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -806,14 +806,14 @@
   gap: 8px;
 }
 
-.duration-number {
+.durationNumber {
   font-size: 48px;
   font-weight: 800;
   color: var(--accent);
   line-height: 1;
 }
 
-.duration-label {
+.durationLabel {
   font-size: 13px;
   font-weight: 600;
   color: var(--text-muted);
@@ -824,20 +824,20 @@
 /* PASO 4: HABITACIONES */
 /* ════════════════════════════════════════════════════════════════ */
 
-.filters-row {
+.filtersRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
 
-.rooms-section {
+.roomsSection {
   display: flex;
   flex-direction: column;
   gap: 16px;
   min-height: 200px;
 }
 
-.rooms-grid {
+.roomsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   gap: 10px;
@@ -846,7 +846,7 @@
   padding: 4px;
 }
 
-.empty-rooms {
+.emptyRooms {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -857,7 +857,7 @@
   padding: 20px;
 }
 
-.room-btn {
+.roomBtn {
   padding: 12px 10px;
   border: 2px solid var(--border-strong);
   border-radius: var(--r-sm);
@@ -869,18 +869,18 @@
   font-size: 11px;
 }
 
-.room-btn:hover {
+.roomBtn:hover {
   border-color: var(--accent-light);
   background: var(--accent-light);
 }
 
-.room-btn.selected {
+.roomBtn.selected {
   border-color: var(--accent);
   background: var(--accent-light);
   box-shadow: inset 0 0 0 1px var(--accent);
 }
 
-.room-number {
+.roomNumber {
   font-size: 16px;
   font-weight: 800;
   color: var(--text);
@@ -888,11 +888,11 @@
   line-height: 1;
 }
 
-.room-btn.selected .room-number {
+.roomBtn.selected .roomNumber {
   color: var(--accent-dark);
 }
 
-.room-type {
+.roomType {
   font-size: 10px;
   color: var(--text-muted);
   margin-bottom: 2px;
@@ -901,7 +901,7 @@
   letter-spacing: 0.3px;
 }
 
-.room-floor {
+.roomFloor {
   font-size: 9px;
   color: var(--text-xmuted);
 }
@@ -910,14 +910,14 @@
 /* RESUMEN */
 /* ════════════════════════════════════════════════════════════════ */
 
-.summary-section {
+.summarySection {
   padding: 16px;
   border: 1px solid var(--border);
   border-radius: var(--r-md);
   background: var(--bg);
 }
 
-.summary-title {
+.summaryTitle {
   font-size: 12px;
   font-weight: 700;
   color: var(--text-muted);
@@ -926,7 +926,7 @@
   letter-spacing: 0.5px;
 }
 
-.summary-rows {
+.summaryRows {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -935,7 +935,7 @@
   overflow-y: auto;
 }
 
-.summary-row {
+.summaryRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -945,31 +945,31 @@
   font-size: 12.5px;
 }
 
-.summary-row:last-child {
+.summaryRow:last-child {
   border-bottom: none;
 }
 
-.room-num {
+.roomNum {
   font-weight: 600;
   color: var(--text);
   flex: 0.8;
 }
 
-.room-rental {
+.roomRental {
   color: var(--text-muted);
   flex: 1;
   text-align: center;
   font-size: 11px;
 }
 
-.room-price {
+.roomPrice {
   font-weight: 700;
   color: var(--accent-dark);
   text-align: right;
   flex: 0.8;
 }
 
-.summary-total {
+.summaryTotal {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -980,7 +980,7 @@
   color: var(--text);
 }
 
-.total-amount {
+.totalAmount {
   color: var(--accent-dark);
   font-size: 15px;
 }
@@ -989,32 +989,32 @@
 /* SCROLLBARS PERSONALIZADAS */
 /* ════════════════════════════════════════════════════════════════ */
 
-.step-content::-webkit-scrollbar,
-.rooms-grid::-webkit-scrollbar,
-.summary-rows::-webkit-scrollbar,
-.clients-list::-webkit-scrollbar {
+.stepContent::-webkit-scrollbar,
+.roomsGrid::-webkit-scrollbar,
+.summaryRows::-webkit-scrollbar,
+.clientsList::-webkit-scrollbar {
   width: 5px;
 }
 
-.step-content::-webkit-scrollbar-track,
-.rooms-grid::-webkit-scrollbar-track,
-.summary-rows::-webkit-scrollbar-track,
-.clients-list::-webkit-scrollbar-track {
+.stepContent::-webkit-scrollbar-track,
+.roomsGrid::-webkit-scrollbar-track,
+.summaryRows::-webkit-scrollbar-track,
+.clientsList::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.step-content::-webkit-scrollbar-thumb,
-.rooms-grid::-webkit-scrollbar-thumb,
-.summary-rows::-webkit-scrollbar-thumb,
-.clients-list::-webkit-scrollbar-thumb {
+.stepContent::-webkit-scrollbar-thumb,
+.roomsGrid::-webkit-scrollbar-thumb,
+.summaryRows::-webkit-scrollbar-thumb,
+.clientsList::-webkit-scrollbar-thumb {
   background: var(--border-strong);
   border-radius: 99px;
 }
 
-.step-content::-webkit-scrollbar-thumb:hover,
-.rooms-grid::-webkit-scrollbar-thumb:hover,
-.summary-rows::-webkit-scrollbar-thumb:hover,
-.clients-list::-webkit-scrollbar-thumb:hover {
+.stepContent::-webkit-scrollbar-thumb:hover,
+.roomsGrid::-webkit-scrollbar-thumb:hover,
+.summaryRows::-webkit-scrollbar-thumb:hover,
+.clientsList::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
 }
 
@@ -1023,19 +1023,19 @@
 /* ════════════════════════════════════════════════════════════════ */
 
 @media (max-width: 600px) {
-  .alquiler-grid {
+  .alquilerGrid {
     grid-template-columns: 1fr;
   }
 
-  .date-grid {
+  .dateGrid {
     grid-template-columns: 1fr;
   }
 
-  .filters-row {
+  .filtersRow {
     grid-template-columns: 1fr;
   }
 
-  .rooms-grid {
+  .roomsGrid {
     grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
   }
 }

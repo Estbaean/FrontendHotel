@@ -1,10 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
 import { LogOut, User } from 'lucide-react';
-import { useHotel } from '../../context/HotelContext';
+import { useAuth } from '../../context/AuthContext';
 
 // Dropdown flotante pequeño para menú de usuario
 export default function UserSidebar({ open, onClose }) {
-  const { logout } = useHotel();
+  const { logout } = useAuth();
   const { pathname } = useLocation();
   if (!open) return null;
 

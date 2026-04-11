@@ -1,0 +1,102 @@
+/* ═══ Layout structure ═══════════════════════════════════════════ */
+.appLayout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 220px;
+  min-width: 220px;
+  height: 100vh;
+  background: var(--side-bg);
+  border-right: 1px solid var(--side-border);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  overflow: hidden;
+  transition: transform .25s ease;
+  z-index: 500;
+}
+
+.sidebarOverlay {
+  display: none;
+}
+
+.appMain {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.appHeader {
+  height: 58px;
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(231,229,228,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  gap: 8px;
+}
+
+.appContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 28px;
+}
+
+/* Menu toggle + sidebar close: hidden on desktop */
+.menuToggle { display: none !important; }
+.sidebarClose { display: none !important; }
+
+/* ═══ Responsive ═════════════════════════════════════════════════ */
+
+@media (max-width: 1024px) {
+  .appContent {
+    padding: 18px 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    transform: translateX(-100%);
+    box-shadow: none;
+  }
+  .sidebarOpen {
+    transform: translateX(0);
+    box-shadow: var(--shadow-lg);
+  }
+  .sidebarOverlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.3);
+    z-index: 499;
+  }
+  .sidebarClose {
+    display: flex !important;
+  }
+  .menuToggle {
+    display: flex !important;
+  }
+  .appHeader {
+    padding: 0 14px;
+    height: 52px;
+  }
+  .appContent {
+    padding: 14px 12px;
+  }
+}

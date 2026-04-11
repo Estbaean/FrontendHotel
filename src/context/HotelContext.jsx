@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { useAuth } from './AuthContext';
 
 // API imports (calls will fail gracefully when backend is offline)
 import { getHabitaciones, postHabitacion, putHabitacion, deleteHabitacion as deleteHabitacionAPI, patchEstadoHabitacion } from '../api/habitaciones';
@@ -9,13 +10,13 @@ import { getTiposAlquiler, postTipoAlquiler, putTipoAlquiler, deleteTipoAlquiler
 import { getEmpresas, getEmpresasRecepcion, postEmpresa, putEmpresa, deleteEmpresa as deleteEmpresaAPI } from '../api/empresas';
 import { getClientes, postCliente, putCliente, deleteCliente as deleteClienteAPI } from '../api/clientes';
 import { getResumenHoy } from '../api/caja';
-import { logout as logoutApi } from '../auth/api';
 import { deriveAppRole } from '../auth/roles';
-import { getAccessToken, hasAccessToken, setAccessToken, clearAuthStorage } from '../auth/storage';
 
 const HotelContext = createContext(null);
 
 export function HotelProvider({ children }) {
+  const { token, userRole } = useAuth();
+
   // ── State aligned to backend DTOs ──────────────────────────────────
   const [tiposHabitacion, setTiposHabitacion] = useState([]);
   const [tiposAlquiler,   setTiposAlquiler]   = useState([]);
@@ -26,89 +27,6 @@ export function HotelProvider({ children }) {
   const [alquileres,      setAlquileres]      = useState([]);
   const [movimientosCaja, setMovimientosCaja] = useState([]);
   const [tiposDocumento]                      = useState([]);
-
-  // ── Auth state ─────────────────────────────────────────────────────
-  const [isLoggedIn, setIsLoggedIn] = useState(() => hasAccessToken());
-  const [userRole,   setUserRole]   = useState('recepcion');
-  const [token,      setToken]      = useState(getAccessToken());
-  const [userName,   setUserName]   = useState('');
-
-  const login = useCallback((authResponse) => {
-    setIsLoggedIn(true);
-    if (authResponse) {
-      setToken(authResponse.access_token);
-      setUserRole(deriveAppRole(authResponse.access_token, authResponse.rol));
-      setUserName(authResponse.nombre || '');
-      setAccessToken(authResponse.access_token);
-    }
-  }, []);
-
-  const logout = useCallback(async () => {
-    try {
-      await logoutApi();
-    } catch (_) {
-      // ignore — token may already be expired
-    } finally {
-      setIsLoggedIn(false);
-      setUserRole('recepcion');
-      setToken(null);
-      setUserName('');
-      clearAuthStorage();
-    }
-  }, []);
-
-  // Restore auth state on mount — also validates JWT expiry
-  useEffect(() => {
-    const savedToken = getAccessToken();
-    if (savedToken) {
-      try {
-        const payload = JSON.parse(atob(savedToken.split('.')[1]));
-        if (payload.exp && payload.exp * 1000 < Date.now()) {
-          clearAuthStorage();
-          setIsLoggedIn(false);
-          setToken(null);
-          return;
-        }
-      } catch (_) {
-        clearAuthStorage();
-        setIsLoggedIn(false);
-        setToken(null);
-        return;
-      }
-      setIsLoggedIn(true);
-      setToken(savedToken);
-      setUserRole(deriveAppRole(savedToken));
-    }
-  }, []);
-
-  // Respond to auth:logout events dispatched by the API interceptor
-  useEffect(() => {
-    const handleAuthLogout = () => logout();
-    window.addEventListener('auth:logout', handleAuthLogout);
-    return () => window.removeEventListener('auth:logout', handleAuthLogout);
-  }, [logout]);
-
-  // Keep React token state in sync when the API interceptor silently refreshes it
-  useEffect(() => {
-    const handleTokenRefreshed = (e) => {
-      const newToken = e.detail;
-      if (newToken) {
-        setToken(newToken);
-        setUserRole(deriveAppRole(newToken));
-      }
-    };
-    window.addEventListener('auth:tokenRefreshed', handleTokenRefreshed);
-    return () => window.removeEventListener('auth:tokenRefreshed', handleTokenRefreshed);
-  }, []);
-
-  // Keep app role aligned with the current access token
-  useEffect(() => {
-    if (!token) {
-      setUserRole('recepcion');
-      return;
-    }
-    setUserRole(deriveAppRole(token));
-  }, [token]);
 
   // Initial sync from backend when authenticated
   useEffect(() => {
@@ -236,6 +154,13 @@ export function HotelProvider({ children }) {
   const updateHabitacion = useCallback(async (id, d) => {
     const updated = await putHabitacion(id, d);
     setHabitaciones(p => p.map(h => h.id === id ? updated : h));
+    try {
+      const activos = await getAlquileresActivos();
+      setAlquileres(p => {
+        const activosMap = new Map(activos.map(a => [a.id, a]));
+        return p.map(a => activosMap.has(a.id) ? activosMap.get(a.id) : a);
+      });
+    } catch (_) {}
   }, []);
 
   const deleteHabitacion = useCallback(async (id) => {
@@ -269,6 +194,11 @@ export function HotelProvider({ children }) {
   const deleteEmpresa = useCallback(async (id) => {
     await deleteEmpresaAPI(id);
     setEmpresas(p => p.filter(e => e.id !== id));
+    // Clients that belonged to the deleted empresa still hold its name — refetch to sync
+    try {
+      const updated = await getClientes();
+      if (Array.isArray(updated)) setClientes(updated);
+    } catch (_) {}
   }, []);
 
   // ── Clientes CRUD ──────────────────────────────────────────────────
@@ -371,7 +301,7 @@ export function HotelProvider({ children }) {
       movimientosCaja,
 
       // Auth
-      isLoggedIn, userRole, token, userName, login, logout,
+      userRole,
     }}>
       {children}
     </HotelContext.Provider>

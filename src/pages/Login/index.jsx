@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { useHotel } from '../../context/HotelContext';
+import { useAuth } from '../../context/AuthContext';
 import { Card, Btn } from '../../components/UI/index.jsx';
 import { Label } from '@radix-ui/react-label';
 import { LogIn, Loader2 } from 'lucide-react';
 import { login as apiLogin } from '../../auth/api';
+import c from './Login.module.css';
 
 export default function Login() {
-  const { login } = useHotel();
+  const { login } = useAuth();
   const [dni, setDni] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -34,117 +35,36 @@ export default function Login() {
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '100vh',
-      background: 'linear-gradient(135deg, var(--accent-light) 0%, var(--bg) 50%, var(--surface-2) 100%)',
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
-      {/* Decorative accent circle */}
-      <div style={{
-        position: 'absolute', top: '-15%', right: '-10%',
-        width: 500, height: 500, borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(212,134,12,.07) 0%, transparent 70%)',
-        pointerEvents: 'none',
-      }} />
-      <div style={{
-        position: 'absolute', bottom: '-20%', left: '-5%',
-        width: 400, height: 400, borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(212,134,12,.05) 0%, transparent 70%)',
-        pointerEvents: 'none',
-      }} />
+    <div className={c.wrapper}>
+      <div className={c.decorTop} />
+      <div className={c.decorBottom} />
 
-      <Card style={{
-        width: '100%', maxWidth: 400, padding: '36px 32px', margin: '0 16px',
-        boxShadow: 'var(--shadow-lg)', position: 'relative', zIndex: 1,
-      }}>
-        <div style={{ textAlign: 'center', marginBottom: 28 }}>
-          <img src="/arroyo hospedaje.jpg" alt="Hospedaje ARROYO" style={{
-            width: 170, height: 'auto', objectFit: 'contain', marginBottom: 14,
-          }} />
-          <h2 style={{ fontSize: 22, fontWeight: 800, color: 'var(--text)', margin: 0, letterSpacing: '-0.3px' }}>
-            Hospedaje ARROYO
-          </h2>
-          <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: '6px 0 0' }}>
-            Ingresa tus credenciales para acceder al sistema
-          </p>
+      <Card className={c.card}>
+        <div className={c.header}>
+          <img src="/arroyo hospedaje.jpg" alt="Hospedaje ARROYO" className={c.logo} />
+          <h2 className={c.title}>Hospedaje ARROYO</h2>
+          <p className={c.subtitle}>Ingresa tus credenciales para acceder al sistema</p>
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: 16 }}>
-            <Label htmlFor="dni" style={{ display: 'block', fontSize: 14, fontWeight: 600, color: 'var(--text)', marginBottom: 4 }}>
-              DNI
-            </Label>
-            <input
-              id="dni"
-              type="text"
-              value={dni}
-              onChange={(e) => setDni(e.target.value)}
-              placeholder="12345678"
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--r-md)',
-                fontSize: 14,
-                background: 'var(--surface)',
-                color: 'var(--text)',
-                outline: 'none',
-                transition: 'border-color .15s, box-shadow .15s',
-              }}
-              onFocus={(e) => { e.target.style.borderColor = 'var(--accent)'; e.target.style.boxShadow = '0 0 0 3px rgba(212,134,12,.15)'; }}
-              onBlur={(e) => { e.target.style.borderColor = 'var(--border)'; e.target.style.boxShadow = 'none'; }}
-            />
+          <div className={c.group}>
+            <Label htmlFor="dni" className={c.fieldLabel}>DNI</Label>
+            <input id="dni" type="text" className={c.input} value={dni} onChange={(e) => setDni(e.target.value)} placeholder="12345678" />
           </div>
 
-          <div style={{ marginBottom: 24 }}>
-            <Label htmlFor="password" style={{ display: 'block', fontSize: 14, fontWeight: 600, color: 'var(--text)', marginBottom: 4 }}>
-              Contraseña
-            </Label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--r-md)',
-                fontSize: 14,
-                background: 'var(--surface)',
-                color: 'var(--text)',
-                outline: 'none',
-                transition: 'border-color .15s, box-shadow .15s',
-              }}
-              onFocus={(e) => { e.target.style.borderColor = 'var(--accent)'; e.target.style.boxShadow = '0 0 0 3px rgba(212,134,12,.15)'; }}
-              onBlur={(e) => { e.target.style.borderColor = 'var(--border)'; e.target.style.boxShadow = 'none'; }}
-            />
+          <div className={c.groupLast}>
+            <Label htmlFor="password" className={c.fieldLabel}>Contraseña</Label>
+            <input id="password" type="password" className={c.input} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
           </div>
 
-          {error && (
-            <div style={{
-              marginBottom: 16, padding: '10px 14px',
-              background: 'var(--red-bg)', border: '1px solid var(--red-border)',
-              borderRadius: 'var(--r-md)', color: 'var(--red)',
-              fontSize: 13, fontWeight: 500, lineHeight: 1.4,
-            }}>
-              {error}
-            </div>
-          )}
+          {error && <div className={c.error}>{error}</div>}
 
           <Btn type="submit" full icon={loading ? <Loader2 size={16} className="spin" /> : <LogIn size={16} />} disabled={loading}>
             {loading ? 'Ingresando…' : 'Iniciar Sesión'}
           </Btn>
         </form>
 
-        <p style={{ textAlign: 'center', fontSize: 11, color: 'var(--text-xmuted)', marginTop: 24, marginBottom: 0 }}>
-          Sistema de gestión hotelera v1.0
-        </p>
+        <p className={c.footer}>Sistema de gestión hotelera v1.0</p>
       </Card>
     </div>
   );

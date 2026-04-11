@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useHotel } from '../../context/HotelContext';
+import { useAuth } from '../../context/AuthContext';
 import {
   Btn,
   Card,
@@ -7,22 +8,21 @@ import {
   DeleteBtn,
   EditBtn,
   EmptyState,
-  filterLabel,
   PageHeader,
   Pagination,
-  RSelect,
-  SearchInput,
   Table,
   tdStyle,
   useToast,
 } from '../../components/UI/index.jsx';
+import PageToolbar from '../../components/PageToolbar';
 import ClienteFormModal from '../../components/ClienteFormModal.jsx';
 import { Plus, Users } from 'lucide-react';
 
 const PER_PAGE = 10;
 
 export default function Clientes() {
-  const { clientes, addCliente, updateCliente, deleteCliente, userRole, tiposDocumento } = useHotel();
+  const { userRole } = useAuth();
+  const { clientes, addCliente, updateCliente, deleteCliente, tiposDocumento } = useHotel();
   const addToast = useToast();
   const isAdmin = userRole === 'admin';
   const canEdit = userRole === 'admin' || userRole === 'recepcion';
@@ -97,22 +97,13 @@ export default function Clientes() {
         {canEdit && <Btn icon={<Plus size={14} />} onClick={openNew}>Nuevo</Btn>}
       </PageHeader>
 
-      <Card padding="12px 16px" style={{ marginBottom: 18 }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'flex-end' }}>
-          <div style={{ flex: '1 1 220px', minWidth: 180 }}>
-            <label style={filterLabel}>Buscar</label>
-            <SearchInput value={search} onChange={(v) => { setSearch(v); setPage(1); }} placeholder="Nombre, documento, teléfono…" />
-          </div>
-          <div>
-            <label style={filterLabel}>Tipo Doc.</label>
-            <RSelect value={filterTipoDoc} onValueChange={(v) => { setFilterTipoDoc(v); setPage(1); }} options={tipoDocOptions} />
-          </div>
-          <div>
-            <label style={filterLabel}>Empresa</label>
-            <RSelect value={filterEmpresa} onValueChange={(v) => { setFilterEmpresa(v); setPage(1); }} options={empresaOptions} />
-          </div>
-        </div>
-      </Card>
+      <PageToolbar>
+        <PageToolbar.Row inline>
+          <PageToolbar.Search value={search} onChange={(v) => { setSearch(v); setPage(1); }} placeholder="Nombre, documento, teléfono…" />
+          <PageToolbar.Filter label="Tipo Doc." value={filterTipoDoc} onChange={(v) => { setFilterTipoDoc(v); setPage(1); }} options={tipoDocOptions} />
+          <PageToolbar.Filter label="Empresa" value={filterEmpresa} onChange={(v) => { setFilterEmpresa(v); setPage(1); }} options={empresaOptions} />
+        </PageToolbar.Row>
+      </PageToolbar>
 
       <Card>
         {paged.length === 0 ? (
@@ -122,9 +113,6 @@ export default function Clientes() {
             {paged.map((item) => (
               <tr
                 key={item.id}
-                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-                style={{ transition: 'background .12s' }}
               >
                 <td style={tdStyle}>{item.nombre ?? '—'}</td>
                 <td style={tdStyle}>{item.numDocumento ?? '—'}</td>

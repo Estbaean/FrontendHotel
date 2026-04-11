@@ -1,9 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { useHotel } from '../context/HotelContext.jsx';
+import { useAuth } from '../context/AuthContext';
 import { SearchInput, ConfirmDialog, inputStyle, useToast } from './UI/index.jsx';
 import ClienteFormModal from './ClienteFormModal.jsx';
 import { Plus, Check } from 'lucide-react';
+import s from './CheckInModal.module.css';
 
 export default function CheckInClienteList({
   clientes = [],
@@ -12,7 +14,8 @@ export default function CheckInClienteList({
   representativeId,
   onRepresentativeChange,
 }) {
-  const { clientes: allClientes, addCliente, updateCliente, deleteCliente, tiposDocumento, empresas, userRole } = useHotel();
+  const { userRole } = useAuth();
+  const { clientes: allClientes, addCliente, updateCliente, deleteCliente, tiposDocumento, empresas } = useHotel();
   const isAdmin = userRole === 'admin';
   const addToast = useToast();
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
@@ -113,8 +116,8 @@ export default function CheckInClienteList({
   };
 
   return (
-    <div className="checkin-clients-section">
-      <div className="clients-controls">
+    <div className={s.checkinClientsSection}>
+      <div className={s.clientsControls}>
         <SearchInput value={searchTerm} onChange={setSearchTerm} placeholder="Buscar cliente..." />
         <select
           value={filterTipoCliente}
@@ -126,7 +129,7 @@ export default function CheckInClienteList({
           <option value="EXTERNO">Externo</option>
         </select>
         <button
-          className={`add-client-top ${showNewModal ? 'active' : ''}`}
+          className={`${s.addClientTop} ${showNewModal ? s.active : ''}`}
           title="Registrar nuevo huésped"
           type="button"
           onClick={() => setShowNewModal(true)}
@@ -135,17 +138,17 @@ export default function CheckInClienteList({
         </button>
       </div>
 
-      <div className="clients-available-list">
+      <div className={s.clientsAvailableList}>
         {filteredClientes.length === 0 ? (
-          <div className="empty-search">No se encontraron clientes</div>
+          <div className={s.emptySearch}>No se encontraron clientes</div>
         ) : (
           filteredClientes.map((cliente) => {
             const isSelected = selectedIds.includes(cliente.id);
             const docLabel = cliente.tipoDocumento?.nombre || cliente.tipoDocumento || 'DNI';
             return (
-              <div key={cliente.id} className={`client-row ${isSelected ? 'selected' : ''}`}>
+              <div key={cliente.id} className={`${s.clientRow} ${isSelected ? s.selected : ''}`}>
                 <Checkbox.Root
-                  className="rudimentr-checkbox"
+                  className={s.rudimentrCheckbox}
                   checked={isSelected}
                   onCheckedChange={() => toggleSelectCliente(cliente)}
                   id={`cliente-${cliente.id}`}
@@ -155,19 +158,19 @@ export default function CheckInClienteList({
                   </Checkbox.Indicator>
                 </Checkbox.Root>
 
-                <div className="client-row-text" onClick={() => toggleSelectCliente(cliente)}>
+                <div className={s.clientRowText} onClick={() => toggleSelectCliente(cliente)}>
                   <strong>{cliente.nombre}</strong>
-                  <span className="client-row-doc">{docLabel}: {cliente.numDocumento || '—'}</span>
+                  <span className={s.clientRowDoc}>{docLabel}: {cliente.numDocumento || '—'}</span>
                   {cliente.empresaNombre && (
-                    <span className="client-row-empresa">{cliente.empresaNombre}</span>
+                    <span className={s.clientRowEmpresa}>{cliente.empresaNombre}</span>
                   )}
                 </div>
-                <div className="client-row-actions">
+                <div className={s.clientRowActions}>
                   {isSelected && (
                     <button
                       type="button"
                       onClick={() => onRepresentativeChange?.(cliente.id)}
-                      className={representativeId === cliente.id ? 'rep-active' : ''}
+                      className={representativeId === cliente.id ? s.repActive : ''}
                     >
                       {representativeId === cliente.id ? 'Representante' : 'Marcar rep.'}
                     </button>
