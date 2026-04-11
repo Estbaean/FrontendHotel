@@ -529,7 +529,6 @@ export default function Caja() {
             </>
           )}
         />
-      
     </div>
   );
 }
