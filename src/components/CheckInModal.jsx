@@ -195,40 +195,56 @@ export default function CheckInModal({
           </div>
 
           <div className={s.stepContent}>
-            <div className={s.alquilerGrid}>
+            {/* Chips de tipo de alquiler */}
+            <div className={s.tipoChips}>
               {tiposAlquiler.map((tipo) => (
-                <div
+                <button
                   key={tipo.id}
-                  className={`${s.alquilerCard} ${tipoAlquilerId === String(tipo.id) ? s.selected : ''}`}
+                  type="button"
+                  className={`${s.tipoChip} ${tipoAlquilerId === String(tipo.id) ? s.tipoChipSelected : ''}`}
                   onClick={() => setTipoAlquilerId(String(tipo.id))}
-                  role="button"
-                  tabIndex={0}
-                  onKeyUp={(e) => e.key === "Enter" && setTipoAlquilerId(String(tipo.id))}
                 >
-                  <div className={s.alquilerTitle}>{tipo.nombre}</div>
-                </div>
+                  {tipo.nombre}
+                </button>
               ))}
             </div>
 
+            {/* Duración — solo mostrar cuando hay tipo seleccionado */}
             {selectedTipo && (
-              <>
-                <div className={s.hoursControls}>
-                  <Field label={`Cantidad de ${unitLabel}`} required>
-                    <div className={s.hoursOnlyWrap}>
-                      <button type="button" className={s.hoursStep} onClick={() => setCantTiempo(Math.max(1, cantTiempo - 1))}>-</button>
-                      <span className={s.hoursValue}>{cantTiempo}</span>
-                      <button type="button" className={s.hoursStep} onClick={() => setCantTiempo(cantTiempo + 1)}>+</button>
-                    </div>
-                  </Field>
+              <div className={s.duracionBox}>
+                <div className={s.duracionLabel}>
+                  Cantidad de <strong>{unitLabel}</strong>
+                </div>
+                <div className={s.duracionControl}>
+                  <button
+                    type="button"
+                    className={s.durStep}
+                    onClick={() => setCantTiempo(Math.max(1, cantTiempo - 1))}
+                    aria-label="Disminuir"
+                  >−</button>
+                  <span className={s.durValue}>{cantTiempo}</span>
+                  <button
+                    type="button"
+                    className={s.durStep}
+                    onClick={() => setCantTiempo(cantTiempo + 1)}
+                    aria-label="Aumentar"
+                  >+</button>
                 </div>
 
                 {salidaPreview && (
-                  <div className={s.salidaPreview}>
-                    <span className={s.salidaPreviewLabel}>Salida estimada</span>
-                    <span className={s.salidaPreviewDate}>{salidaPreview}</span>
+                  <div className={s.salidaPill}>
+                    <span className={s.salidaPillIcon}>🕐</span>
+                    <div>
+                      <div className={s.salidaPillLabel}>Salida estimada</div>
+                      <div className={s.salidaPillDate}>{salidaPreview}</div>
+                    </div>
                   </div>
                 )}
-              </>
+              </div>
+            )}
+
+            {!tipoAlquilerId && (
+              <p className={s.tipoHint}>Seleccioná una modalidad para continuar</p>
             )}
           </div>
 
