@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useHotel } from '../../context/HotelContext';
-import { useAuth } from '../../context/AuthContext';
 import { Table, Btn, EmptyState, Pagination, Card, SearchInput, tdStyle, PageHeader, useToast } from '../../components/UI/index.jsx';
 import { DollarSign, TrendingUp, TrendingDown, Plus, FileText, Download, Pencil, ArrowUp, ArrowDown, Clock, Trash2, ClipboardList } from 'lucide-react';
 import { getMovimientosRango, getResumenHoy } from '../../api/caja';
@@ -17,10 +16,8 @@ const PER_PAGE = 15;
 const CAJA_FILTROS_STORAGE_KEY = 'caja.filtros.rango';
 
 export default function Caja() {
-  const { userRole } = useAuth();
   const { empresas } = useHotel();
   const addToast = useToast();
-  const isAdmin = userRole === 'admin';
 
   const [page, setPage] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
@@ -190,17 +187,11 @@ export default function Caja() {
     [cuentasEmpresaAll]
   );
 
-  /* Resumen: tarjetas muestran solo los montos que el rol puede ver.
-     Recepcionista ve todas las filas pero monto/método de empresa = "—",
-     así que los totales deben excluir esos montos ocultos. */
   const resumenFiltrado = useMemo(() => {
-    const monetarios = isAdmin
-      ? movimientosFiltrados
-      : movimientosFiltrados.filter(m => !(m.nombreEmpresa && m.nombreEmpresa !== '—'));
-    const totalIngresos = monetarios
+    const totalIngresos = movimientosFiltrados
       .filter(m => m.tipo === 'INGRESO')
       .reduce((s, m) => s + (parseFloat(m.monto) || 0), 0);
-    const totalEgresos = monetarios
+    const totalEgresos = movimientosFiltrados
       .filter(m => m.tipo === 'EGRESO')
       .reduce((s, m) => s + (parseFloat(m.monto) || 0), 0);
     return {
@@ -209,7 +200,7 @@ export default function Caja() {
       balance: totalIngresos - totalEgresos,
       cantidadMovimientos: movimientosFiltrados.length,
     };
-  }, [movimientosFiltrados, isAdmin]);
+  }, [movimientosFiltrados]);
 
   const paged = movimientosSorted.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
@@ -220,16 +211,14 @@ export default function Caja() {
       <PageHeader title="Caja / Movimientos" subtitle={`Registra ingresos, egresos y controla saldo · ${movimientosFiltrados.length}`}>
           <Btn icon={<Plus size={14} />} onClick={() => openModal('INGRESO_EXTRA')} title="Registrar ingresos fuera de alquileres (servicios, depósitos, etc.)">Ingreso Adicional</Btn>
           <Btn icon={<TrendingDown size={14} />} variant="ghost" onClick={() => openModal('EGRESO')}>Registrar Egreso</Btn>
-          {isAdmin && (
-            <Btn
-              variant="danger"
-              icon={<Trash2 size={14} />}
-              onClick={() => setDeleteModal(true)}
-              title="Eliminar permanentemente todos los movimientos de caja"
-            >
-              Limpiar Caja
-            </Btn>
-          )}
+          <Btn
+            variant="danger"
+            icon={<Trash2 size={14} />}
+            onClick={() => setDeleteModal(true)}
+            title="Eliminar permanentemente todos los movimientos de caja"
+          >
+            Limpiar Caja
+          </Btn>
       </PageHeader>
 
       {/* Summary Cards — per tab */}
@@ -243,7 +232,7 @@ export default function Caja() {
       )}
       {activeTab === 'cuentas_empresa' && (
       <div className={s.summaryGrid}>
-        {isAdmin && <SummaryCard label="Total Pendiente" value={totalPendienteEmpresas} color="#e65100" bg="#fff3e0" icon={<Clock size={16} />} />}
+        <SummaryCard label="Total Pendiente" value={totalPendienteEmpresas} color="#e65100" bg="#fff3e0" icon={<Clock size={16} />} />
         <SummaryCard label="Empresas con deuda" value={empresasConDeuda} isCount color="var(--text-2)" bg="var(--surface-2, #f5f5f5)" icon={<FileText size={16} />} />
       </div>
       )}
@@ -345,7 +334,7 @@ export default function Caja() {
                     filtroDesde && filtroHasta ? `${filtroDesde} — ${filtroHasta}` : '');
                 } else {
                   descargarReporteCajaMovimientos(movimientosFiltrados, {
-                    desde: filtroDesde, hasta: filtroHasta, isAdmin,
+                    desde: filtroDesde, hasta: filtroHasta,
                     filtroTipo,
                     filtroEmpresa: filtroEmpresaNombre || (filtroCliente === 'SOLO_EMPRESAS' ? 'empresas' : ''),
                     search: buscarNombre,
@@ -360,7 +349,7 @@ export default function Caja() {
               }}>
               Descargar PDF
             </Btn>
-            {isAdmin && activeTab === 'cuentas_empresa' && cuentasEmpresaPendientes.length > 0 && (
+            {activeTab === 'cuentas_empresa' && cuentasEmpresaPendientes.length > 0 && (
               <Btn icon={<TrendingUp size={14} />}
                 onClick={() => setCobrarLoteModal(true)}
                 title={`Cobrar los ${cuentasEmpresaPendientes.length} pendientes visibles`}>
@@ -379,15 +368,12 @@ export default function Caja() {
                   addToast(msg || 'Error al cargar movimientos de hoy', 'error');
                   return;
                 }
-                const movsParaCierre = isAdmin
-                  ? movHoy
-                  : movHoy.filter(m => !(m.nombreEmpresa && m.nombreEmpresa !== '—'));
-                const totalIngresos = movsParaCierre.filter(m => m.tipo === 'INGRESO').reduce((s, m) => s + (parseFloat(m.monto) || 0), 0);
-                const totalEgresos = movsParaCierre.filter(m => m.tipo === 'EGRESO').reduce((s, m) => s + (parseFloat(m.monto) || 0), 0);
-                generarCierreCaja(movsParaCierre, {
+                const totalIngresos = movHoy.filter(m => m.tipo === 'INGRESO').reduce((s, m) => s + (parseFloat(m.monto) || 0), 0);
+                const totalEgresos = movHoy.filter(m => m.tipo === 'EGRESO').reduce((s, m) => s + (parseFloat(m.monto) || 0), 0);
+                generarCierreCaja(movHoy, {
                   totalIngresos, totalEgresos,
                   balance: totalIngresos - totalEgresos,
-                  cantidadMovimientos: movsParaCierre.length,
+                  cantidadMovimientos: movHoy.length,
                 }, `Fecha: ${hoy}`);
               }}>
               Cierre de Caja
@@ -405,13 +391,8 @@ export default function Caja() {
         <EmptyState message="No hay movimientos registrados" icon={<DollarSign size={48} />} />
       ) : (
         <>
-          <Table headers={isAdmin
-            ? ['Fecha', 'Tipo', 'Monto', 'Método', 'Concepto', 'Usuario', 'Cliente', '']
-            : ['Fecha', 'Tipo', 'Monto', 'Método', 'Concepto', 'Usuario', 'Cliente']
-          }>
+          <Table headers={['Fecha', 'Tipo', 'Monto', 'Método', 'Concepto', 'Usuario', 'Cliente', '']}>
             {paged.map(m => {
-              const esCorporativo = Boolean(m.nombreEmpresa && m.nombreEmpresa !== '—');
-              const ocultarMonto = !isAdmin && esCorporativo;
               return (
               <tr key={m.id}
               >                <td style={tdStyle}>{new Date(m.fecha).toLocaleDateString('es-PE', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' })}</td>
@@ -426,15 +407,11 @@ export default function Caja() {
                     {m.tipo === 'EGRESO' ? 'Egreso' : m.tipo === 'PENDIENTE' ? 'Pendiente' : 'Ingreso'}
                   </span>
                 </td>
-                <td style={{ ...tdStyle, fontWeight: 700, fontSize: 14, color: 'var(--accent-dark)' }}
-                  title={ocultarMonto ? 'Monto empresa — visible solo para administradores' : undefined}
-                >
-                  {ocultarMonto ? <span style={{ cursor: 'help' }}>—</span> : `S/ ${parseFloat(m.monto).toFixed(2)}`}
+                <td style={{ ...tdStyle, fontWeight: 700, fontSize: 14, color: 'var(--accent-dark)' }}>
+                  {`S/ ${parseFloat(m.monto).toFixed(2)}`}
                 </td>
-                <td style={tdStyle}
-                  title={ocultarMonto ? 'Monto empresa — visible solo para administradores' : undefined}
-                >
-                  {ocultarMonto ? <span style={{ cursor: 'help' }}>—</span> : (m.metodoPago || '—')}
+                <td style={tdStyle}>
+                  {m.metodoPago || '—'}
                 </td>
                 <td style={tdStyle}>{(m.concepto || '').substring(0, 40)}{(m.concepto || '').length > 40 ? '...' : ''}</td>
                 <td style={tdStyle}>{m.nombreUsuario || '—'}</td>
@@ -444,16 +421,14 @@ export default function Caja() {
                     <div className={s.empresaSub}>{m.nombreEmpresa}</div>
                   )}
                 </td>
-                {isAdmin && (
-                  <td style={tdStyle}>
-                    <Btn variant="ghost" style={{ fontSize: 11, padding: '3px 8px' }}
-                      onClick={() => setEditMontoModal(m)}
-                      icon={<Pencil size={12} />}
-                      title="Editar monto y método de pago">
-                      Editar
-                    </Btn>
-                  </td>
-                )}
+                <td style={tdStyle}>
+                  <Btn variant="ghost" style={{ fontSize: 11, padding: '3px 8px' }}
+                    onClick={() => setEditMontoModal(m)}
+                    icon={<Pencil size={12} />}
+                    title="Editar monto y método de pago">
+                    Editar
+                  </Btn>
+                </td>
               </tr>
               );
             })}
@@ -475,10 +450,7 @@ export default function Caja() {
               <EmptyState message="No hay cuentas pendientes de empresas" icon={<Clock size={48} />} />
             ) : (
               <>
-              <Table headers={isAdmin
-                ? ['Fecha checkout', 'Empresa', 'Cliente', 'Habitación', 'Monto', '']
-                : ['Fecha checkout', 'Empresa', 'Cliente', 'Habitación', '']
-              }>
+              <Table headers={['Fecha checkout', 'Empresa', 'Cliente', 'Habitación', 'Monto', '']}>
                 {cuentasEmpresaPendientes.slice((pageEmpresa - 1) * PER_PAGE, pageEmpresa * PER_PAGE).map(m => (
                   <tr key={m.id}
                   >
@@ -486,11 +458,9 @@ export default function Caja() {
                     <td style={{ ...tdStyle, fontWeight: 600 }}>{m.nombreEmpresa || '—'}</td>
                     <td style={tdStyle}>{m.nombreCliente || '—'}</td>
                     <td style={tdStyle}>{m.numeroHabitacion || '—'}</td>
-                    {isAdmin && (
-                      <td style={{ ...tdStyle, fontWeight: 700, color: '#e65100' }}>
-                        S/ {parseFloat(m.monto).toFixed(2)}
-                      </td>
-                    )}
+                    <td style={{ ...tdStyle, fontWeight: 700, color: '#e65100' }}>
+                      S/ {parseFloat(m.monto).toFixed(2)}
+                    </td>
                     <td style={tdStyle}>
                       <div className={s.actionRow}>
                         <Btn variant="ghost" style={{ fontSize: 11, padding: '3px 8px' }}
@@ -499,15 +469,13 @@ export default function Caja() {
                             if (!m.alquilerId) { addToast('Este movimiento no tiene alquiler asociado', 'error'); return; }
                             setGestionarModal(m);
                           }}
-                          title={isAdmin ? 'Ver consumos y asignar precios' : 'Ver consumos del alquiler'}>
-                          {isAdmin ? 'Gestionar' : 'Ver consumos'}
+                          title="Ver consumos y asignar precios">
+                          Gestionar
                         </Btn>
-                        {isAdmin && (
-                          <Btn style={{ fontSize: 11, padding: '3px 8px' }}
-                            onClick={() => setCobrarModal(m)}>
-                            Cobrar
-                          </Btn>
-                        )}
+                        <Btn style={{ fontSize: 11, padding: '3px 8px' }}
+                          onClick={() => setCobrarModal(m)}>
+                          Cobrar
+                        </Btn>
                       </div>
                     </td>
                   </tr>
@@ -528,7 +496,6 @@ export default function Caja() {
         onClose={() => setGestionarModal(null)}
         onSuccess={fetchResumen}
         onCobrar={(mov) => setCobrarModal(mov)}
-        isAdmin={isAdmin}
       />
       <MovimientoFormModal open={modalOpen} tipo={modalTipo} onClose={() => setModalOpen(false)} onSuccess={fetchResumen} />
       <EditMontoModal movimiento={editMontoModal} onClose={() => setEditMontoModal(null)} onSuccess={fetchResumen} />
@@ -541,8 +508,7 @@ export default function Caja() {
         totalPendiente={totalPendienteEmpresas}
         filtroEmpresaNombre={filtroEmpresaNombre}
       />
-      {isAdmin && (
-        <DeleteConfirmModal
+      <DeleteConfirmModal
           open={deleteModal}
           onClose={() => setDeleteModal(false)}
           onSuccess={fetchResumen}
@@ -563,7 +529,7 @@ export default function Caja() {
             </>
           )}
         />
-      )}
+      )
     </div>
   );
 }

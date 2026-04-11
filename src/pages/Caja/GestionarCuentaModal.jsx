@@ -10,7 +10,7 @@ const thSt = { padding: '6px 8px', textAlign: 'left', fontWeight: 700, fontSize:
 const tdSt = { padding: '8px 8px', borderBottom: '1px solid var(--border)', fontSize: 13 };
 const priceInput = { width: 90, textAlign: 'right', padding: '3px 6px', fontSize: 13, border: '1.5px solid var(--accent)', borderRadius: 6, outline: 'none', background: 'var(--bg)', color: 'var(--text)' };
 
-export default function GestionarCuentaModal({ movimiento, onClose, onSuccess, onCobrar, isAdmin }) {
+export default function GestionarCuentaModal({ movimiento, onClose, onSuccess, onCobrar }) {
   const addToast = useToast();
   const [cuentas, setCuentas] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -107,7 +107,7 @@ export default function GestionarCuentaModal({ movimiento, onClose, onSuccess, o
     <Modal
       open
       onOpenChange={(open) => !open && onClose()}
-      title={isAdmin ? 'Gestionar cuenta empresa' : 'Consumos del alquiler'}
+      title="Gestionar cuenta empresa"
       width={580}
     >
       {/* Info del alquiler */}
@@ -134,8 +134,8 @@ export default function GestionarCuentaModal({ movimiento, onClose, onSuccess, o
               <tr>
                 <th style={thSt}>Descripción</th>
                 <th style={{ ...thSt, textAlign: 'center' }}>Cant.</th>
-                {isAdmin && <th style={{ ...thSt, textAlign: 'right' }}>P. Unit</th>}
-                {isAdmin && <th style={{ ...thSt, textAlign: 'right' }}>Total</th>}
+                <th style={{ ...thSt, textAlign: 'right' }}>P. Unit</th>
+                <th style={{ ...thSt, textAlign: 'right' }}>Total</th>
               </tr>
             </thead>
             <tbody>
@@ -143,18 +143,16 @@ export default function GestionarCuentaModal({ movimiento, onClose, onSuccess, o
               <tr style={{ background: 'var(--surface-2, #fafafa)' }}>
                 <td style={{ ...tdSt, fontWeight: 600 }}>Alojamiento</td>
                 <td style={{ ...tdSt, textAlign: 'center' }}>1</td>
-                {isAdmin && (
-                  <td style={{ ...tdSt, textAlign: 'right' }}>
-                    <input type="number" min="0" step="0.01" value={basePrice}
-                      onChange={e => setBasePrice(e.target.value)} style={priceInput} />
-                  </td>
-                )}
-                {isAdmin && <td style={{ ...tdSt, textAlign: 'right', fontWeight: 600 }}>S/ {baseNum.toFixed(2)}</td>}
+                <td style={{ ...tdSt, textAlign: 'right' }}>
+                  <input type="number" min="0" step="0.01" value={basePrice}
+                    onChange={e => setBasePrice(e.target.value)} style={priceInput} />
+                </td>
+                <td style={{ ...tdSt, textAlign: 'right', fontWeight: 600 }}>S/ {baseNum.toFixed(2)}</td>
               </tr>
               {/* Filas consumos */}
               {cuentas.length === 0 ? (
                 <tr>
-                  <td colSpan={isAdmin ? 4 : 2} style={{ ...tdSt, textAlign: 'center', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                  <td colSpan={4} style={{ ...tdSt, textAlign: 'center', color: 'var(--text-muted)', fontStyle: 'italic' }}>
                     Sin consumos adicionales registrados
                   </td>
                 </tr>
@@ -162,27 +160,22 @@ export default function GestionarCuentaModal({ movimiento, onClose, onSuccess, o
                 <tr key={c.id}>
                   <td style={tdSt}>{c.descripcion}</td>
                   <td style={{ ...tdSt, textAlign: 'center' }}>{c.cantidad}</td>
-                  {isAdmin && (
-                    <td style={{ ...tdSt, textAlign: 'right' }}>
-                      <input type="number" min="0" step="0.50"
-                        value={precios[c.id] ?? ''}
-                        onChange={e => setPrecios(prev => ({ ...prev, [c.id]: e.target.value }))}
-                        style={priceInput} />
-                    </td>
-                  )}
-                  {isAdmin && (
-                    <td style={{ ...tdSt, textAlign: 'right', fontWeight: 600 }}>
-                      S/ {(parseFloat(precios[c.id] || '0') * c.cantidad).toFixed(2)}
-                    </td>
-                  )}
+                  <td style={{ ...tdSt, textAlign: 'right' }}>
+                    <input type="number" min="0" step="0.50"
+                      value={precios[c.id] ?? ''}
+                      onChange={e => setPrecios(prev => ({ ...prev, [c.id]: e.target.value }))}
+                      style={priceInput} />
+                  </td>
+                  <td style={{ ...tdSt, textAlign: 'right', fontWeight: 600 }}>
+                    S/ {(parseFloat(precios[c.id] || '0') * c.cantidad).toFixed(2)}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
 
-          {/* Resumen total — solo admin */}
-          {isAdmin && (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 3, padding: '10px 8px 12px', borderTop: '2px solid var(--border)', marginBottom: 12 }}>
+          {/* Resumen total */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 3, padding: '10px 8px 12px', borderTop: '2px solid var(--border)', marginBottom: 12 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', width: 230, fontSize: 13, color: 'var(--text-muted)' }}>
                 <span>Alojamiento</span><span>S/ {baseNum.toFixed(2)}</span>
               </div>
@@ -195,28 +188,16 @@ export default function GestionarCuentaModal({ movimiento, onClose, onSuccess, o
                 <span>Total a cobrar</span><span>S/ {nuevoTotal.toFixed(2)}</span>
               </div>
             </div>
-          )}
-
-          {/* Aviso recepcionista */}
-          {!isAdmin && (
-            <div style={{ padding: '10px 14px', background: 'var(--surface-2)', borderRadius: 8, fontSize: 13, color: 'var(--text-muted)', borderLeft: '3px solid var(--accent)', marginBottom: 12 }}>
-              Los precios son asignados por administración. El cobro se gestiona desde allí.
-            </div>
-          )}
 
           {/* Acciones */}
           <div className={s.modalFooter} style={{ marginTop: 4 }}>
             <Btn variant="ghost" onClick={onClose}>Cerrar</Btn>
-            {isAdmin && (
-              <>
-                <Btn variant="ghost" icon={<Save size={13} />} onClick={handleGuardarPrecios} disabled={submitting}>
-                  {submitting ? 'Guardando...' : 'Guardar precios'}
-                </Btn>
-                <Btn icon={<TrendingUp size={13} />} onClick={handleGuardarYCobrar} disabled={submitting}>
-                  {submitting ? 'Procesando...' : `Guardar y cobrar · S/ ${nuevoTotal.toFixed(2)}`}
-                </Btn>
-              </>
-            )}
+            <Btn variant="ghost" icon={<Save size={13} />} onClick={handleGuardarPrecios} disabled={submitting}>
+              {submitting ? 'Guardando...' : 'Guardar precios'}
+            </Btn>
+            <Btn icon={<TrendingUp size={13} />} onClick={handleGuardarYCobrar} disabled={submitting}>
+              {submitting ? 'Procesando...' : `Guardar y cobrar · S/ ${nuevoTotal.toFixed(2)}`}
+            </Btn>
           </div>
         </>
       )}
