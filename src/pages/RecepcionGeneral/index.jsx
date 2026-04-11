@@ -2,10 +2,10 @@ import { useState, useMemo } from 'react';
 import { useHotel } from '../../context/HotelContext';
 import { useAuth } from '../../context/AuthContext';
 import { ESTADOS } from '../../constants/estados';
-import { Badge, Card, ConfirmDialog, Popover, Btn, PageHeader, useToast } from '../../components/UI/index.jsx';
+import { Badge, Card, ConfirmDialog, Modal, Popover, Btn, PageHeader, useToast } from '../../components/UI/index.jsx';
 import PageToolbar from '../../components/PageToolbar';
 import CheckInModal from '../../components/CheckInModal.jsx';
-import { BedDouble, Layers, ChevronDown, LogIn, LogOut, Building2, User, Clock, ClipboardList, Check, Tag, ChevronUp } from 'lucide-react';
+import { BedDouble, Layers, ChevronDown, LogIn, LogOut, Building2, User, Clock, ClipboardList, Check, Tag } from 'lucide-react';
 import { esAlquilerEmpresa, puedeVerMontos } from '../../utils/formHelpers';
 import { getHabitacionesDisponibles } from '../../api/habitaciones';
 import CheckoutModal from '../../components/CheckoutModal.jsx';
@@ -82,58 +82,47 @@ export default function RecepcionGeneral() {
   return (
     <div className="page-anim">
       <PageHeader title="Recepción General" subtitle={`Panel de habitaciones · ${habitaciones.length}`}>
-        <Btn variant="ghost" icon={<Tag size={14} />} onClick={() => setShowTarifas(o => !o)}>
-          {showTarifas ? 'Ocultar tarifas' : 'Ver tarifas'}
-        </Btn>
+        <Btn variant="ghost" icon={<Tag size={14} />} onClick={() => setShowTarifas(true)}>Ver tarifas</Btn>
         <Btn icon={<LogIn size={14} />} onClick={openCheckIn}>Check-In</Btn>
       </PageHeader>
 
-      {/* Panel de tarifas */}
-      {showTarifas && (
-        <div className={c.tarifasPanel}>
-          <div className={c.tarifasPanelHeader}>
-            <Tag size={13} />
-            <span>Tarifas vigentes</span>
-            <button className={c.tarifasPanelClose} onClick={() => setShowTarifas(false)} aria-label="Cerrar tarifas">
-              <ChevronUp size={14} />
-            </button>
-          </div>
-          {tiposAlquiler.length === 0 || tiposHabitacion.length === 0 ? (
-            <p className={c.tarifasEmpty}>No hay tarifas configuradas.</p>
-          ) : (
-            <div className={c.tarifasScroll}>
-              <table className={c.tarifasTable}>
-                <thead>
-                  <tr>
-                    <th className={c.tarifasTh} style={{ textAlign: 'left' }}>Tipo de habitación</th>
-                    {tiposAlquiler.map(ta => (
-                      <th key={ta.id} className={c.tarifasTh}>{ta.nombre}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {tiposHabitacion.map((th, i) => (
-                    <tr key={th.id} className={i % 2 === 0 ? c.tarifasTrEven : ''}>
-                      <td className={c.tarifasTdLabel}>{th.nombre}</td>
-                      {tiposAlquiler.map(ta => {
-                        const precio = tarifaMatrix[th.id]?.[ta.id];
-                        return (
-                          <td key={ta.id} className={c.tarifasTd}>
-                            {precio != null
-                              ? <span className={c.tarifasPrecio}>S/ {Number(precio).toFixed(2)}</span>
-                              : <span className={c.tarifasSinConfig}>—</span>
-                            }
-                          </td>
-                        );
-                      })}
-                    </tr>
+      {/* Modal de tarifas */}
+      <Modal open={showTarifas} onOpenChange={setShowTarifas} title="Tarifas vigentes" width={700}>
+        {tiposAlquiler.length === 0 || tiposHabitacion.length === 0 ? (
+          <p className={c.tarifasEmpty}>No hay tarifas configuradas.</p>
+        ) : (
+          <div className={c.tarifasScroll}>
+            <table className={c.tarifasTable}>
+              <thead>
+                <tr>
+                  <th className={c.tarifasTh} style={{ textAlign: 'left' }}>Tipo de habitación</th>
+                  {tiposAlquiler.map(ta => (
+                    <th key={ta.id} className={c.tarifasTh}>{ta.nombre}</th>
                   ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      )}
+                </tr>
+              </thead>
+              <tbody>
+                {tiposHabitacion.map((th, i) => (
+                  <tr key={th.id} className={i % 2 === 0 ? c.tarifasTrEven : ''}>
+                    <td className={c.tarifasTdLabel}>{th.nombre}</td>
+                    {tiposAlquiler.map(ta => {
+                      const precio = tarifaMatrix[th.id]?.[ta.id];
+                      return (
+                        <td key={ta.id} className={c.tarifasTd}>
+                          {precio != null
+                            ? <span className={c.tarifasPrecio}>S/ {Number(precio).toFixed(2)}</span>
+                            : <span className={c.tarifasSinConfig}>—</span>
+                          }
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Modal>
 
       {/* Estadísticas */}
       <div className={c.statsGrid}>

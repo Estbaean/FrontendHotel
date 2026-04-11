@@ -289,46 +289,7 @@
   text-align: left;
 }
 
-/* ═══ Panel de tarifas ════════════════════════════════════════════════ */
-.tarifasPanel {
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: var(--r-lg);
-  margin-bottom: 20px;
-  overflow: hidden;
-}
-
-.tarifasPanelHeader {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 10px 16px;
-  background: var(--surface-2);
-  border-bottom: 1px solid var(--border);
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-2);
-  text-transform: uppercase;
-  letter-spacing: .5px;
-}
-
-.tarifasPanelClose {
-  margin-left: auto;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  padding: 2px;
-  border-radius: var(--r-sm);
-  transition: color .15s ease;
-}
-
-.tarifasPanelClose:hover {
-  color: var(--text);
-}
-
+/* ═══ Tabla de tarifas (modal) ════════════════════════════════════════ */
 .tarifasEmpty {
   padding: 16px;
   font-size: 13px;
