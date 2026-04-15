@@ -34,7 +34,7 @@ export default function CheckInModal({
 
   // Selected client (first one — backend accepts one client per check-in)
   const selectedCliente = clientes.find((c) => c.id === representativeId) || clientes[0];
-  const clienteEsEmpresa = Boolean(selectedCliente?.empresaNombre || selectedCliente?.empresaId);
+  const clienteEsEmpresa = Boolean((selectedCliente?.empresaNombre && selectedCliente?.empresaNombre !== '—') || selectedCliente?.empresaId);
   const canViewTarifa = isAdmin || !clienteEsEmpresa;
 
   // Validaciones
@@ -342,7 +342,7 @@ export default function CheckInModal({
             <div className={s.summarySection}>
               <h4 className={s.summaryTitle}>Datos del check-in</h4>
               <div className={s.summaryRows}>
-                {selectedCliente?.empresaNombre && (
+                {selectedCliente?.empresaNombre && selectedCliente?.empresaNombre !== '—' && (
                   <div className={s.summaryRow}>
                     <span className={s.roomNum}>Empresa</span>
                     <span className={s.roomRental} style={{ textAlign: 'right', fontWeight: 700 }}>

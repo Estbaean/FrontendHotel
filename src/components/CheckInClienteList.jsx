@@ -47,7 +47,7 @@ export default function CheckInClienteList({
         || cliente.nombre?.toLowerCase().includes(term)
         || cliente.numDocumento?.toString().toLowerCase().includes(term);
 
-      const esEmpresa = Boolean(cliente.empresaId || cliente.empresaNombre);
+      const esEmpresa = Boolean(cliente.empresaId || (cliente.empresaNombre && cliente.empresaNombre !== '—'));
       const matchTipo = filterTipoCliente === 'TODOS'
         || (filterTipoCliente === 'EMPRESA' && esEmpresa)
         || (filterTipoCliente === 'EXTERNO' && !esEmpresa);
@@ -161,7 +161,7 @@ export default function CheckInClienteList({
                 <div className={s.clientRowText} onClick={() => toggleSelectCliente(cliente)}>
                   <strong>{cliente.nombre}</strong>
                   <span className={s.clientRowDoc}>{docLabel}: {cliente.numDocumento || '—'}</span>
-                  {cliente.empresaNombre && (
+                  {cliente.empresaNombre && cliente.empresaNombre !== '—' && (
                     <span className={s.clientRowEmpresa}>{cliente.empresaNombre}</span>
                   )}
                 </div>

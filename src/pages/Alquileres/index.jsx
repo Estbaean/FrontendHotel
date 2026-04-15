@@ -3,7 +3,7 @@ import { useHotel } from '../../context/HotelContext';
 import { useAuth } from '../../context/AuthContext';
 import { Table, Btn, Card, EmptyState, Pagination, tdStyle, PageHeader, SearchInput } from '../../components/UI/index.jsx';
 import { ClipboardList, LogOut, Trash2, Download, FileText, ArrowDown, ArrowUp, DollarSign, TrendingUp, CheckCircle } from 'lucide-react';
-import { descargarReporteAlquileresActivos, generarRegistroAsistencia } from '../../utils/reportesPdf';
+import { descargarReporteAlquileresActivos, generarRegistroAsistencia, descargarReporteFinalizados } from '../../utils/reportesPdf';
 import { esAlquilerEmpresa, puedeVerMontos } from '../../utils/formHelpers';
 import { FilterToggle, FilterPanel, FilterPills, FilterLabel, DateRangeFilter, ChipGroup } from '../../components/Filters';
 import PageToolbar from '../../components/PageToolbar';
@@ -184,7 +184,18 @@ export default function Alquileres() {
             )}
             {tab === 'ACTIVO' && (
               <Btn variant="ghost" icon={<Download size={14} />} onClick={() => descargarReporteAlquileresActivos(filteredSorted)}>
-                Descargar PDF
+                Activos PDF
+              </Btn>
+            )}
+            {tab === 'FINALIZADO' && filteredSorted.length > 0 && (
+              <Btn variant="ghost" icon={<Download size={14} />} onClick={() => descargarReporteFinalizados(filteredSorted, {
+                desde: filtroFechaDesde || undefined,
+                hasta: filtroFechaHasta || undefined,
+                empresa: filtroEmpresaNombre || undefined,
+                condicion: filtroCliente || undefined,
+                search: searchAlq.trim() || undefined,
+              })}>
+                Finalizados PDF
               </Btn>
             )}
           </PageToolbar.Actions>
@@ -208,7 +219,7 @@ export default function Alquileres() {
                 </td>
                 <td style={{ ...tdStyle, fontWeight: 600 }}>
                   {a.nombreCliente}
-                  {a.empresaNombre && (
+                  {a.empresaNombre && a.empresaNombre !== '—' && (
                     <div className={s.empresaSub}>{a.empresaNombre}</div>
                   )}
                   {a.huespedes && a.huespedes.length > 1 && (

@@ -199,8 +199,8 @@ export default function Habitaciones() {
                       <Btn variant="ghost" style={{ fontSize: 11, padding: '3px 8px' }}
                         icon={<FileText size={12} />}
                         onClick={() => setReporteMensualHab(hab)}
-                        title="Reporte mensual de estadías">
-                        Reporte
+                        title="Reporte de alquileres finalizados por habitación">
+                        Finalizados PDF
                       </Btn>
                       {!readOnly && (
                         <>

@@ -95,6 +95,32 @@ function drawRowBg(doc, y, index, rowH = 8) {
   }
 }
 
+/** Considera empresa solo si el campo tiene valor real (no nulo, vacío ni "—") */
+function tieneEmpresa(nombre) {
+  return Boolean(nombre && nombre !== '—');
+}
+
+/* Pills de resumen — usadas en reportes de finalizados */
+function drawSummaryPills(doc, y, pills) {
+  const pillW = 54;
+  const pillH = 10;
+  const pillGap = 5;
+  pills.forEach((p, i) => {
+    const px = 14 + i * (pillW + pillGap);
+    doc.setFillColor(...p.bg);
+    doc.setDrawColor(...p.color);
+    doc.setLineWidth(0.4);
+    doc.roundedRect(px, y - 6, pillW, pillH, 2, 2, 'FD');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...p.color);
+    doc.text(p.label, px + pillW / 2, y, { align: 'center' });
+  });
+  doc.setLineWidth(0.2);
+  doc.setTextColor(0);
+  return y + pillH + 2;
+}
+
 function formatDateOnly(value) {
   if (!value) return '—';
   const d = new Date(value);
@@ -333,7 +359,7 @@ export function descargarReporteAlquileresActivos(alquileres) {
 
   (alquileres || []).forEach((row, idx) => {
     const tipo = row?.tipoAlquilerNombre || '';
-    const empresa = row?.empresaNombre || '';
+    const empresa = tieneEmpresa(row?.empresaNombre) ? row.empresaNombre : '';
     const hasSecondLine = tipo || empresa;
     const rowH = hasSecondLine ? 11 : 8;
 
@@ -409,10 +435,134 @@ export function descargarReporteAlquileresActivos(alquileres) {
 }
 
 /* ═══════════════════════════════════════════════════════════
+   REPORTE DE ALQUILERES FINALIZADOS  (landscape A4)
+   ═══════════════════════════════════════════════════════════ */
+export function descargarReporteFinalizados(alquileres, filtros = {}) {
+  const doc = new jsPDF('l');
+  const pageW = doc.internal.pageSize.getWidth();   // 297
+  const pageH = doc.internal.pageSize.getHeight();  // 210
+
+  const total             = (alquileres || []).length;
+  const totalEmpresas     = (alquileres || []).filter(a => tieneEmpresa(a.empresaNombre)).length;
+  const totalParticulares = total - totalEmpresas;
+
+  /* Subtítulo: filtros activos o indicador general */
+  const partesFiltro = [];
+  if (filtros.desde && filtros.hasta)          partesFiltro.push(`${filtros.desde} — ${filtros.hasta}`);
+  else if (filtros.desde)                      partesFiltro.push(`Desde ${filtros.desde}`);
+  else if (filtros.hasta)                      partesFiltro.push(`Hasta ${filtros.hasta}`);
+  if (filtros.empresa)                         partesFiltro.push(`Empresa: ${filtros.empresa}`);
+  if (filtros.condicion === 'SOLO_EMPRESAS')   partesFiltro.push('Solo empresas');
+  if (filtros.condicion === 'SOLO_CLIENTES')   partesFiltro.push('Solo particulares');
+  if (filtros.search)                          partesFiltro.push(`"${filtros.search}"`);
+  const subtitulo = partesFiltro.length ? partesFiltro.join(' · ') : 'Todos los registros';
+
+  let y = writeHeader(doc, 'Reporte de Alquileres Finalizados', subtitulo);
+
+  /* ─── Resumen en pills ─── */
+  y = drawSummaryPills(doc, y, [
+    { label: `${total} Finalizado${total !== 1 ? 's' : ''}`,                           color: C.mid,  bg: [245, 244, 243] },
+    { label: `${totalEmpresas} Empresa${totalEmpresas !== 1 ? 's' : ''}`,              color: C.blue, bg: [239, 246, 255] },
+    { label: `${totalParticulares} Particular${totalParticulares !== 1 ? 'es' : ''}`,  color: C.green, bg: [240, 253, 244] },
+  ]);
+
+  /* Columnas: 28+102+52+52+35 = 269 = 297-28 */
+  const columns = [
+    { label: 'Hab.',              width: 28 },
+    { label: 'Cliente / Empresa', width: 102 },
+    { label: 'Ingreso',           width: 52 },
+    { label: 'Salida Real',       width: 52 },
+    { label: 'Firma',             width: 35 },
+  ];
+
+  y = drawTableHeader(doc, y, columns, 9);
+
+  const X = { hab: 16, cli: 44, ing: 146, sal: 198, firma: 250 };
+
+  doc.setFontSize(9.5);
+
+  (alquileres || []).forEach((row, idx) => {
+    const tipo    = row?.tipoAlquilerNombre || '';
+    const empresa = tieneEmpresa(row?.empresaNombre) ? row.empresaNombre : '';
+    const hasSecondLine = tipo || empresa;
+    const rowH = hasSecondLine ? 11 : 8;
+
+    if (y > pageH - 18) {
+      doc.addPage();
+      y = writeHeader(doc, 'Reporte de Alquileres Finalizados', null);
+      y = drawTableHeader(doc, y, columns, 9);
+      doc.setFontSize(9.5);
+    }
+
+    drawRowBg(doc, y, idx, rowH);
+
+    /* Hab. + tipo */
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9.5);
+    doc.setTextColor(...C.accent);
+    doc.text(String(row?.numeroHabitacion || '—'), X.hab, y);
+    if (tipo) {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(6.5);
+      doc.setTextColor(...C.muted);
+      doc.text(tipo, X.hab, y + 4);
+    }
+
+    /* Cliente + empresa (empresa en azul, sin columna Cond. separada) */
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9.5);
+    doc.setTextColor(...C.dark);
+    doc.text(String(row?.nombreCliente || '—').slice(0, 52), X.cli, y);
+    if (empresa) {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(6.5);
+      doc.setTextColor(...C.blue);
+      doc.text(empresa.slice(0, 52), X.cli, y + 4);
+    }
+
+    /* Fechas */
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(...C.mid);
+    doc.text(formatDateTimeDay(row?.fechaIngreso),                        X.ing, y);
+    doc.text(row?.fechaSalida ? formatDateTimeDay(row.fechaSalida) : '—', X.sal, y);
+
+    /* Recuadro de firma */
+    doc.setDrawColor(...C.line);
+    doc.rect(X.firma, y - 4, 28, 6.5);
+
+    /* Separador */
+    const lineY = hasSecondLine ? y + 5.5 : y + 2.5;
+    doc.setDrawColor(...C.line);
+    doc.line(14, lineY, pageW - 14, lineY);
+    y += rowH;
+  });
+
+  if (!alquileres || alquileres.length === 0) {
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(9);
+    doc.setTextColor(...C.muted);
+    doc.text('No hay alquileres finalizados con los filtros actuales.', 14, y + 4);
+    doc.setTextColor(0);
+  }
+
+  /* Pie */
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(7);
+    doc.setTextColor(...C.muted);
+    doc.text(`${BRAND_NAME} — Página ${i} de ${pageCount}`, pageW / 2, pageH - 10, { align: 'center' });
+  }
+
+  doc.save(`alquileres-finalizados-${normalizeDateForFilename()}.pdf`);
+}
+
+/* ═══════════════════════════════════════════════════════════
    BOLETA DE CHECKOUT  (portrait A4)
    ═══════════════════════════════════════════════════════════ */
 export function generarBoletaCheckout(alquiler, consumos = [], movimientos = [], { isAdmin = true } = {}) {
-  const esEmpresa = Boolean(alquiler?.empresaNombre || alquiler?.empresaId);
+  const esEmpresa = tieneEmpresa(alquiler?.empresaNombre) || Boolean(alquiler?.empresaId);
   const mostrarPrecios = isAdmin || !esEmpresa;
 
   const doc = new jsPDF();
@@ -431,7 +581,7 @@ export function generarBoletaCheckout(alquiler, consumos = [], movimientos = [],
     ['Cliente', String(alquiler?.nombreCliente || '—')],
     ['Habitación', String(alquiler?.numeroHabitacion || '—')],
     ['Tipo', String(alquiler?.tipoAlquilerNombre || '—')],
-    ['Empresa', String(alquiler?.empresaNombre || '—')],
+    ...(tieneEmpresa(alquiler?.empresaNombre) ? [['Empresa', alquiler.empresaNombre]] : []),
     ['Ingreso', formatDateTime(alquiler?.fechaIngreso)],
     ['Salida', formatDateTime(alquiler?.fechaSalida || alquiler?.fechaPrevista)],
   ];
@@ -1105,51 +1255,48 @@ export function generarReporteMensualHabitacion(habitacion, alquileres, mes, ani
   const pageW = doc.internal.pageSize.getWidth();
 
   const mesNombre = MESES[Number(mes) - 1] || String(mes);
-  const titulo = `Reporte Mensual — Hab. ${habitacion?.numero || '?'}`;
+  const titulo = `Alquileres Finalizados — Hab. ${habitacion?.numero || '?'}`;
   const subtitulo = `${mesNombre} ${anio} · ${habitacion?.tipoHabitacion?.nombre || ''} · Piso ${habitacion?.piso ?? '?'}`;
   let y = writeHeader(doc, titulo, subtitulo);
 
-  /* ─── Resumen rápido ─── */
-  const totalEstadias = (alquileres || []).length;
-  const totalMonto    = (alquileres || []).reduce((s, a) => s + (Number(a.subTotal) || 0), 0);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.setTextColor(...C.muted);
-  doc.text(`Estadías: ${totalEstadias}`, 14, y);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(...C.accent);
-  doc.text(`Total: S/ ${totalMonto.toFixed(2)}`, 70, y);
-  y += 9;
+  /* ─── Resumen en pills (mismo formato que reporte general) ─── */
+  const rows = alquileres || [];
+  const totalEstadias     = rows.length;
+  const totalEmpresas     = rows.filter(a => tieneEmpresa(a.empresaNombre)).length;
+  const totalParticulares = totalEstadias - totalEmpresas;
 
-  /* Columnas (total = 10+46+42+42+22+20 = 182 = 210-28) */
+  y = drawSummaryPills(doc, y, [
+    { label: `${totalEstadias} Finalizado${totalEstadias !== 1 ? 's' : ''}`,            color: C.mid,  bg: [245, 244, 243] },
+    { label: `${totalEmpresas} Empresa${totalEmpresas !== 1 ? 's' : ''}`,               color: C.blue, bg: [239, 246, 255] },
+    { label: `${totalParticulares} Particular${totalParticulares !== 1 ? 'es' : ''}`,   color: C.green, bg: [240, 253, 244] },
+  ]);
+
+  /* Columnas: 10+72+38+38+24 = 182 = 210-28 */
   const columns = [
-    { label: 'Nro',     width: 10 },
-    { label: 'Cliente', width: 46 },
-    { label: 'Ingreso', width: 42 },
-    { label: 'Salida',  width: 42 },
-    { label: 'Dur.',    width: 22, align: 'right' },
-    { label: 'S/.',     width: 20, align: 'right' },
+    { label: 'Nro',              width: 10 },
+    { label: 'Cliente / Empresa', width: 72 },
+    { label: 'Ingreso',          width: 38 },
+    { label: 'Salida',           width: 38 },
+    { label: 'Firma',            width: 24 },
   ];
 
-  y = drawTableHeader(doc, y, columns, 8);
+  y = drawTableHeader(doc, y, columns, 7.8);
 
-  /* X positions */
-  const Xnro  = 16;   // col 14 +2
-  const Xcli  = 27;   // col 24 +3
-  const Xing  = 74;   // col 70 +4
-  const Xsal  = 116;  // col 112 +4
-  const Xdur  = 176;  // right-align: col ends at 176
-  const Xmon  = 196;  // right-align: col ends at 196
+  const Xnro   = 16;
+  const Xcli   = 26;
+  const Xing   = 100;
+  const Xsal   = 138;
+  const Xfirma = 176;
 
   doc.setFontSize(8.5);
-  (alquileres || []).forEach((a, idx) => {
-    const hasEmpresa = Boolean(a.empresaNombre);
+  rows.forEach((a, idx) => {
+    const hasEmpresa = tieneEmpresa(a.empresaNombre);
     const rowH = hasEmpresa ? 10 : 8;
 
     if (y > 262) {
       doc.addPage();
       y = 20;
-      y = drawTableHeader(doc, y, columns, 8);
+      y = drawTableHeader(doc, y, columns, 7.8);
       doc.setFontSize(8.5);
     }
 
@@ -1157,71 +1304,54 @@ export function generarReporteMensualHabitacion(habitacion, alquileres, mes, ani
 
     /* Nro */
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
+    doc.setFontSize(7.5);
     doc.setTextColor(...C.muted);
     doc.text(String(idx + 1), Xnro, y);
 
-    /* Cliente + empresa */
+    /* Cliente + empresa en azul (sin columna Cond. separada) */
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(8.5);
     doc.setTextColor(...C.dark);
-    doc.text(String(a.nombreCliente || '—').slice(0, 26), Xcli, y);
+    doc.text(String(a.nombreCliente || '—').slice(0, 38), Xcli, y);
     if (hasEmpresa) {
       doc.setFont('helvetica', 'normal');
-      doc.setFontSize(6.5);
-      doc.setTextColor(...C.muted);
-      doc.text(String(a.empresaNombre).slice(0, 26), Xcli, y + 4);
-      doc.setFontSize(8.5);
+      doc.setFontSize(6.2);
+      doc.setTextColor(...C.blue);
+      doc.text(String(a.empresaNombre).slice(0, 38), Xcli, y + 4);
     }
 
     /* Ingreso / Salida */
     doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
     doc.setTextColor(...C.dark);
-    doc.text(formatDateTime(a.fechaIngreso), Xing, y);
-    doc.text(a.fechaSalida ? formatDateTime(a.fechaSalida) : '—', Xsal, y);
+    doc.text(formatDateTime(a.fechaIngreso),                        Xing, y);
+    doc.text(a.fechaSalida ? formatDateTime(a.fechaSalida) : '—',   Xsal, y);
 
-    /* Duración */
-    let durStr = '—';
-    if (a.fechaIngreso && a.fechaSalida) {
-      const diffMs = new Date(a.fechaSalida).getTime() - new Date(a.fechaIngreso).getTime();
-      if (diffMs > 0) {
-        const diffH = diffMs / 3_600_000;
-        durStr = diffH < 24 ? `${diffH.toFixed(1)}h` : `${(diffH / 24).toFixed(1)}d`;
-      }
-    }
-    doc.setTextColor(...C.mid);
-    doc.text(durStr, Xdur, y, { align: 'right' });
-
-    /* Monto */
-    const monto = Number(a.subTotal || 0);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(...C.dark);
-    doc.text(`S/ ${monto.toFixed(2)}`, Xmon, y, { align: 'right' });
+    /* Recuadro de firma */
+    doc.setDrawColor(...C.line);
+    doc.rect(Xfirma, y - 4.5, 20, 7);
 
     /* Separador */
     doc.setDrawColor(...C.line);
     const lineY = hasEmpresa ? y + 5.5 : y + 2.5;
     doc.line(14, lineY, pageW - 14, lineY);
-    y += hasEmpresa ? 10 : 8;
+    y += rowH;
   });
 
-  if (!alquileres || alquileres.length === 0) {
+  if (rows.length === 0) {
     doc.setFont('helvetica', 'italic');
     doc.setFontSize(9);
     doc.setTextColor(...C.muted);
-    doc.text('No hay estadías registradas para este período.', 14, y + 6);
+    doc.text('No hay alquileres finalizados registrados para este período.', 14, y + 6);
     y += 14;
   }
 
-  /* Fila de total */
-  y += 4;
-  if (y > 270) { doc.addPage(); y = 20; }
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10);
-  doc.setTextColor(...C.mid);
-  doc.text('TOTAL', Xdur - 24, y);
-  doc.setTextColor(...C.accent);
-  doc.text(`S/ ${totalMonto.toFixed(2)}`, Xmon, y, { align: 'right' });
+  y += 6;
+  if (y > 270) { doc.addPage(); y = 24; }
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...C.muted);
+  doc.text('Firma de conformidad por cada salida registrada.', 14, y);
 
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
@@ -1232,5 +1362,5 @@ export function generarReporteMensualHabitacion(habitacion, alquileres, mes, ani
   }
 
   const habNum = String(habitacion?.numero || 'X');
-  doc.save(`reporte-mensual-hab${habNum}-${anio}-${String(mes).padStart(2, '0')}.pdf`);
+  doc.save(`reporte-finalizados-hab${habNum}-${anio}-${String(mes).padStart(2, '0')}.pdf`);
 }
