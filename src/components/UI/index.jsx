@@ -15,11 +15,12 @@ export function TooltipProvider({ children }) {
 
 /* ─── BOTÓN ───────────────────────────────────────── */
 const BTN_VARIANTS = {
-  primary: { bg:'var(--accent)',    color:'#fff',               border:'transparent',         hoverBg:'linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%)' },
-  ghost:   { bg:'transparent',     color:'var(--text-2)',       border:'var(--border)',        hoverBg:'var(--surface-2)'   },
-  danger:  { bg:'var(--red)',       color:'#fff',               border:'transparent',         hoverBg:'#b91c1c'            },
-  soft:    { bg:'var(--accent-light)', color:'var(--accent)',   border:'var(--accent-mid)',   hoverBg:'var(--accent-mid)'  },
-  icon:    { bg:'transparent',     color:'var(--text-muted)',   border:'var(--border)',        hoverBg:'var(--surface-2)'   },
+  primary:   { bg:'var(--accent)',    color:'#fff',               border:'transparent',         hoverBg:'var(--accent-dark)' },
+  secondary: { bg:'var(--surface-2)', color:'var(--text)',        border:'var(--border)',       hoverBg:'var(--border)'      },
+  ghost:     { bg:'transparent',     color:'var(--text-2)',       border:'var(--border)',        hoverBg:'var(--surface-2)'   },
+  danger:    { bg:'var(--red)',       color:'#fff',               border:'transparent',         hoverBg:'#b91c1c'            },
+  soft:      { bg:'var(--accent-light)', color:'var(--accent)',   border:'var(--accent-mid)',   hoverBg:'var(--accent-mid)'  },
+  icon:      { bg:'transparent',     color:'var(--text-muted)',   border:'var(--border)',        hoverBg:'var(--surface-2)'   },
 };
 const BTN_SIZES = {
   xs: { padding:'4px 10px',  fontSize:'11px', height:'28px', borderRadius:'var(--r-sm)' },

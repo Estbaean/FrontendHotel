@@ -82,6 +82,11 @@ export type AlquilerResponseDTO = {
   estadoAlquiler: 'ACTIVO' | 'FINALIZADO';
   estadoHabitacion: 'DISPONIBLE' | 'OCUPADA' | 'LIMPIEZA' | 'MANTENIMIENTO';
   huespedes?: string[];
+  // Campos para cálculo de preview
+  precioFijado?: number;
+  cantTiempo?: number;
+  tipoAlquilerUnidad?: 'HORA' | 'DIA';
+  tipoAlquilerMultiplicador?: number;
 };
 
 export type CuentaAlquilerDTO = {

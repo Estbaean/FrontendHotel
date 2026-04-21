@@ -34,6 +34,13 @@ export async function patchAlquilerMontos(id: number, data: { subTotal: number; 
   });
 }
 
+export async function patchAlquilerFechaSalida(id: number, fechaSalida: string): Promise<AlquilerResponseDTO> {
+  return apiFetch(`/api/recepcion/alquiler/${id}/fechaSalida`, {
+    method: 'PATCH',
+    data: { fechaSalida },
+  });
+}
+
 export async function postAgregarHuesped(idAlquiler: number, clienteId: number): Promise<AlquilerResponseDTO> {
   return apiFetch(`/api/recepcion/alquiler/${idAlquiler}/huespedes/${clienteId}`, {
     method: 'POST',

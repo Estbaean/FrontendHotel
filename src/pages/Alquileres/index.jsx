@@ -2,13 +2,14 @@ import { useState, useMemo } from 'react';
 import { useHotel } from '../../context/HotelContext';
 import { useAuth } from '../../context/AuthContext';
 import { Table, Btn, Card, EmptyState, Pagination, tdStyle, PageHeader, SearchInput } from '../../components/UI/index.jsx';
-import { ClipboardList, LogOut, Trash2, Download, FileText, ArrowDown, ArrowUp, DollarSign, TrendingUp, CheckCircle } from 'lucide-react';
+import { ClipboardList, LogOut, Trash2, Download, FileText, ArrowDown, ArrowUp, DollarSign, TrendingUp, CheckCircle, Calendar } from 'lucide-react';
 import { descargarReporteAlquileresActivos, generarRegistroAsistencia, descargarReporteFinalizados } from '../../utils/reportesPdf';
 import { esAlquilerEmpresa, puedeVerMontos } from '../../utils/formHelpers';
 import { FilterToggle, FilterPanel, FilterPills, FilterLabel, DateRangeFilter, ChipGroup } from '../../components/Filters';
 import PageToolbar from '../../components/PageToolbar';
 import CheckoutModal from '../../components/CheckoutModal';
 import CuentaAlquilerModal from './CuentaAlquilerModal';
+import EditFechaSalidaModal from './EditFechaSalidaModal';
 import DeleteConfirmModal from '../../components/DeleteConfirmModal';
 import { previewDeleteHistorial, deleteHistorial } from '../../api/alquileres';
 import s from '../../styles/shared.module.css';
@@ -24,6 +25,7 @@ export default function Alquileres() {
   const [page, setPage] = useState(1);
   const [checkOutModal, setCheckOutModal] = useState(null);
   const [cuentaModal, setCuentaModal] = useState(null);
+  const [editFechaModal, setEditFechaModal] = useState(null);
   const [deleteModal, setDeleteModal] = useState(false);
 
   const [searchAlq, setSearchAlq] = useState('');
@@ -205,7 +207,7 @@ export default function Alquileres() {
       {paged.length === 0 ? (
         <EmptyState message={tab === 'ACTIVO' ? 'No hay alquileres activos' : 'Sin historial'} icon={<ClipboardList size={48} />} />
       ) : (
-        <Card padding="0 16px 4px">
+        <Card key={`alquileres-table-${tab}-${alquileres.length}-${Date.now()}`} padding="0 16px 4px">
           <Table headers={alquilerHeaders}>
             {paged.map(a => (
               <tr key={a.id}>{(() => {
@@ -238,10 +240,39 @@ export default function Alquileres() {
                 <td style={tdStyle}>{formatDate(tab === 'FINALIZADO' ? (a.fechaSalida || a.fechaPrevista) : a.fechaPrevista)}</td>
                 <td style={tdStyle}>
                   {puedeVerMontos(isAdmin, esEmpresa) ? (
-                    <span className={a.pagoPendiente > 0 ? s.amountNegative : s.amountPositive}>
-                      S/ {parseFloat(a.pagoPendiente).toFixed(2)}
+                    (() => {
+                      const saldo = parseFloat(a.pagoPendiente || 0);
+                      
+                      // Caso 1: Saldo a favor (Negativo)
+                      if (saldo < -0.01) {
+                        return (
+                          <span style={{ color: 'var(--blue, #2563eb)', fontWeight: 700 }}>
+                            Vuelto: S/ {Math.abs(saldo).toFixed(2)}
+                          </span>
+                        );
+                      }
+                      
+                      // Caso 2: Deuda pendiente (Positivo)
+                      if (saldo > 0.01) {
+                        return (
+                          <span className={s.amountNegative} style={{ fontWeight: 700 }}>
+                            S/ {saldo.toFixed(2)}
+                          </span>
+                        );
+                      }
+                      
+                      // Caso 3: Pagado (Cero)
+                      return (
+                        <span className={s.amountPositive} style={{ fontWeight: 600 }}>
+                          S/ 0.00
+                        </span>
+                      );
+                    })()
+                  ) : (
+                    <span style={{ cursor: 'help' }} title="Monto empresa — visible solo para administradores">
+                      —
                     </span>
-                  ) : <span style={{ cursor: 'help' }} title="Monto empresa — visible solo para administradores">—</span>}
+                  )}
                 </td>
 
                 <td style={tdStyle}>
@@ -251,6 +282,13 @@ export default function Alquileres() {
                       icon={<ClipboardList size={13} />}>
                       Gestionar
                     </Btn>
+                    {isAdmin && (a.estadoAlquiler === 'ACTIVO' || a.estadoAlquiler === 'FINALIZADO') && (
+                      <Btn variant="secondary" style={{ fontSize: 12, padding: '4px 10px' }}
+                        onClick={() => setEditFechaModal(a)}
+                        icon={<Calendar size={13} />}>
+                        Editar fecha
+                      </Btn>
+                    )}
                     {a.estadoAlquiler === 'ACTIVO' && (
                       <Btn variant="danger" style={{ fontSize: 12, padding: '4px 10px' }}
                         onClick={() => setCheckOutModal(a)}
@@ -273,7 +311,22 @@ export default function Alquileres() {
       )}
 
       <CheckoutModal alquiler={checkOutModal} onClose={() => setCheckOutModal(null)} checkOut={checkOut} isAdmin={isAdmin} />
-      <CuentaAlquilerModal alquiler={cuentaModal} onClose={() => setCuentaModal(null)} isAdmin={isAdmin} refreshAlquiler={refreshAlquiler} />
+<CuentaAlquilerModal 
+  alquiler={cuentaModal} 
+  onClose={() => setCuentaModal(null)} 
+  isAdmin={isAdmin} 
+  refreshAlquiler={refreshAlquiler}
+  refetchAlquileres={refetchAlquileres}
+/>
+<EditFechaSalidaModal 
+  alquiler={editFechaModal} 
+  onClose={() => setEditFechaModal(null)} 
+  onSuccess={(updated) => {
+    refreshAlquiler(updated.id);
+    refetchAlquileres();
+  }}
+  refetchAlquileres={refetchAlquileres}
+/>
       <DeleteConfirmModal
         open={deleteModal}
         onClose={() => setDeleteModal(false)}
