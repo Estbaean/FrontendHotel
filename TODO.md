@@ -1,9 +1,14 @@
-# Fix: Edit Date Deletes Rental Account Balance
+# Caja Monto 0 Fix - Progress Tracker
 
-## Steps:
-- [x] 1. Add auto-refresh useEffect in CuentaAlquilerModal.jsx for subTotal changes
-- [x] 2. Add manual Refresh button in CuentaAlquilerModal header
-- [ ] 3. Test: Open cuenta → edit fecha → verify auto/manual refresh shows new saldo (base + consumos - pagos)
-- [ ] 4. attempt_completion
+## ✅ COMPLETED
+- [x] Create TODO.md
+- [x] Edit CajaModals.jsx: Allow monto=0, block <0 only
+- [x] Update validation messages to "no puede ser negativo"
 
-Current: ✅ FIXED EditFechaSalidaModal preview logic + CuentaAlquilerModal refresh. Test ready!
+## ⏳ PENDING  
+- Test caja forms con monto=0
+- Verify backend accepts 0
+- Run `npm run dev` 
+
+**Status: Fix deployed - test and mark complete**
+

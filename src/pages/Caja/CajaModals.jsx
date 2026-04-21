@@ -17,7 +17,7 @@ export function MovimientoFormModal({ open, tipo, onClose, onSuccess }) {
 
   const validate = () => {
     const errs = {};
-    if (!form.monto || isNaN(form.monto) || Number(form.monto) <= 0) errs.monto = 'Monto válido requerido';
+    if (!form.monto || isNaN(form.monto) || Number(form.monto) < 0) errs.monto = 'Monto no puede ser negativo';
     if (!form.concepto.trim()) errs.concepto = 'Concepto requerido';
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -84,7 +84,7 @@ export function EditMontoModal({ movimiento, onClose, onSuccess }) {
 
   const handleSave = async () => {
     const val = Number(montoValue);
-    if (!val || val <= 0) { addToast('Monto inválido', 'error'); return; }
+    if (isNaN(val) || val < 0) { addToast('Monto no puede ser negativo', 'error'); return; }
     try {
       await patchMovimientoMonto(movimiento.id, val, metodoPago || undefined);
       addToast('Movimiento actualizado', 'success');
@@ -156,7 +156,7 @@ export function CobrarModal({ movimiento, onClose, onSuccess }) {
       {movimiento && (
         <>
           <div className={s.infoMuted}>
-            {movimiento.nombreEmpresa} &middot; {movimiento.nombreCliente} &middot; S/ {parseFloat(movimiento.monto).toFixed(2)}
+            {movimiento.nombreEmpresa} · {movimiento.nombreCliente} · S/ {parseFloat(movimiento.monto).toFixed(2)}
           </div>
           <Field label="Método de Pago" required>
             <select value={metodo} onChange={e => setMetodo(e.target.value)} style={inputStyle}>
@@ -204,11 +204,11 @@ export function CobrarLoteModal({ open, onClose, onSuccess, pendientes, totalPen
         Se registrarán como <strong>INGRESO</strong> todos los movimientos PENDIENTE
         {filtroEmpresaNombre
           ? <> de <strong>{filtroEmpresaNombre}</strong></>
-          : ' visibles en la tabla'
-        } en el período seleccionado.
+          : ' visibles en la tabla'}
+        en el período seleccionado.
       </div>
       <div style={{ fontSize: 13, fontWeight: 600, color: '#e65100', marginBottom: 14 }}>
-        {pendientes.length} movimiento(s) &middot; Total: S/ {totalPendiente.toFixed(2)}
+        {pendientes.length} movimiento(s) · Total: S/ {totalPendiente.toFixed(2)}
       </div>
       <Field label="Método de Pago" required>
         <select value={metodo} onChange={e => setMetodo(e.target.value)} style={inputStyle}>
@@ -222,3 +222,4 @@ export function CobrarLoteModal({ open, onClose, onSuccess, pendientes, totalPen
     </Modal>
   );
 }
+
