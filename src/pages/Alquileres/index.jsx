@@ -18,7 +18,7 @@ const PER_PAGE = 12;
 
 export default function Alquileres() {
   const { userRole } = useAuth();
-  const { alquileres, checkOut, refreshAlquiler, refetchAlquileres, empresas } = useHotel();
+  const { alquileres, checkOut, refreshAlquiler, refetchAlquileres, mergeAlquilerLocal, empresas } = useHotel();
   const isAdmin = userRole === 'admin';
 
   const [tab, setTab] = useState('ACTIVO'); // 'ACTIVO' | 'FINALIZADO'
@@ -66,11 +66,24 @@ export default function Alquileres() {
     });
   }, [filtered, sortDir]);
 
+  const selectedCheckOutAlquiler = useMemo(
+    () => (checkOutModal ? alquileres.find(a => a.id === checkOutModal.id) || checkOutModal : null),
+    [alquileres, checkOutModal],
+  );
+  const selectedCuentaAlquiler = useMemo(
+    () => (cuentaModal ? alquileres.find(a => a.id === cuentaModal.id) || cuentaModal : null),
+    [alquileres, cuentaModal],
+  );
+  const selectedEditFechaAlquiler = useMemo(
+    () => (editFechaModal ? alquileres.find(a => a.id === editFechaModal.id) || editFechaModal : null),
+    [alquileres, editFechaModal],
+  );
+
   const paged = filteredSorted.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
   const handleTabChange = (t) => { setTab(t); setPage(1); };
 
-  const alquilerHeaders = ['Hab.', 'Cliente', 'Tipo', 'Ingreso', tab === 'FINALIZADO' ? 'Salida Real' : 'Salida Prev.', 'Saldo', ''];
+  const alquilerHeaders = ['Hab.', 'Cliente', 'Tipo', 'Ingreso', tab === 'FINALIZADO' ? 'Salida Real' : 'Salida Prev.', tab === 'FINALIZADO' ? 'Ingreso' : 'Saldo', ''];
 
   // Dashboard stats (reactive to filtered data)
   const activos = alquileres.filter(a => a.estadoAlquiler === 'ACTIVO');
@@ -207,7 +220,7 @@ export default function Alquileres() {
       {paged.length === 0 ? (
         <EmptyState message={tab === 'ACTIVO' ? 'No hay alquileres activos' : 'Sin historial'} icon={<ClipboardList size={48} />} />
       ) : (
-        <Card key={`alquileres-table-${tab}-${alquileres.length}-${Date.now()}`} padding="0 16px 4px">
+        <Card key={`alquileres-table-${tab}-${alquileres.length}`} padding="0 16px 4px">
           <Table headers={alquilerHeaders}>
             {paged.map(a => (
               <tr key={a.id}>{(() => {
@@ -242,6 +255,32 @@ export default function Alquileres() {
                   {puedeVerMontos(isAdmin, esEmpresa) ? (
                     (() => {
                       const saldo = parseFloat(a.pagoPendiente || 0);
+                      const totalPagado = parseFloat(a.totalPagadoCaja || 0);
+
+                      if (tab === 'FINALIZADO') {
+                        return (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <span
+                              style={{
+                                fontWeight: 700,
+                                color: totalPagado > 0.01 ? 'var(--green, #43a047)' : 'var(--text-muted)',
+                              }}
+                            >
+                              S/ {totalPagado.toFixed(2)}
+                            </span>
+                            {saldo > 0.01 && (
+                              <span style={{ fontSize: 11, color: '#e65100' }}>
+                                Pend. S/ {saldo.toFixed(2)}
+                              </span>
+                            )}
+                            {saldo < -0.01 && (
+                              <span style={{ fontSize: 11, color: 'var(--blue, #2563eb)' }}>
+                                Vuelto S/ {Math.abs(saldo).toFixed(2)}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      }
                       
                       // Caso 1: Saldo a favor (Negativo)
                       if (saldo < -0.01) {
@@ -310,29 +349,27 @@ export default function Alquileres() {
         </Card>
       )}
 
-      <CheckoutModal alquiler={checkOutModal} onClose={() => setCheckOutModal(null)} checkOut={checkOut} isAdmin={isAdmin} />
+      <CheckoutModal alquiler={selectedCheckOutAlquiler} onClose={() => setCheckOutModal(null)} checkOut={checkOut} isAdmin={isAdmin} />
 <CuentaAlquilerModal 
-  alquiler={cuentaModal} 
+  alquiler={selectedCuentaAlquiler}
   onClose={() => setCuentaModal(null)} 
   isAdmin={isAdmin} 
   refreshAlquiler={refreshAlquiler}
-  refetchAlquileres={refetchAlquileres}
+  mergeAlquilerLocal={mergeAlquilerLocal}
 />
 <EditFechaSalidaModal 
-  alquiler={editFechaModal} 
+  alquiler={selectedEditFechaAlquiler}
   onClose={() => setEditFechaModal(null)} 
   onSuccess={(updated) => {
     refreshAlquiler(updated.id);
-    refetchAlquileres();
   }}
-  refetchAlquileres={refetchAlquileres}
 />
       <DeleteConfirmModal
         open={deleteModal}
         onClose={() => setDeleteModal(false)}
         onSuccess={refetchAlquileres}
         title="Eliminar Historial de Alquileres"
-        warningText='Los alquileres eliminados <strong>no se pueden recuperar</strong>. Los movimientos de caja asociados perderán su referencia al alquiler.'
+        warningText={<>Los alquileres eliminados <strong>no se pueden recuperar</strong>. Los movimientos de caja asociados perderán su referencia al alquiler.</>}
         todoDesc="Borra todos los alquileres finalizados"
         emptyMessage="No hay alquileres finalizados en ese período."
         previewFn={previewDeleteHistorial}

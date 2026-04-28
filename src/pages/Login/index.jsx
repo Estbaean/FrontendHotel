@@ -53,7 +53,7 @@ export default function Login() {
           <form onSubmit={handleSubmit}>
             <div className={c.group}>
               <Label htmlFor="dni" className={c.fieldLabel}>DNI</Label>
-              <input id="dni" type="text" className={c.input} value={dni} onChange={(e) => setDni(e.target.value)} placeholder="12345678" />
+<input id="dni" type="text" className={c.input} value={dni} onChange={(e) => setDni(e.target.value)} placeholder="12345678" inputMode="numeric" maxLength={8} pattern="[0-9]{8}" autoComplete="username" />
             </div>
 
             <div className={c.groupLast}>

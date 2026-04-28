@@ -10,13 +10,21 @@ import { MovimientoFormModal, EditMontoModal, CobrarModal, CobrarLoteModal } fro
 import GestionarCuentaModal from './GestionarCuentaModal';
 import DeleteConfirmModal from '../../components/DeleteConfirmModal';
 import { deleteMovimientos, previewDeleteMovimientos } from '../../api/caja';
+import {
+  isMovimientoCajaEgreso,
+  isMovimientoCajaIngreso,
+  isMovimientoCajaPendiente,
+  sumMovimientosCajaEgresos,
+  sumMovimientosCajaIngresos,
+  filterMovimientosActivos,
+} from '../../utils/cajaMovimientos';
 import s from '../../styles/shared.module.css';
 
 const PER_PAGE = 15;
 const CAJA_FILTROS_STORAGE_KEY = 'caja.filtros.rango';
 
 export default function Caja() {
-  const { empresas } = useHotel();
+  const { empresas, refreshAlquiler } = useHotel();
   const addToast = useToast();
 
   const [page, setPage] = useState(1);
@@ -71,11 +79,12 @@ export default function Caja() {
 
   // Tab state
   const [activeTab, setActiveTab] = useState('movimientos');
+  const [mostrarInactivos, setMostrarInactivos] = useState(false);
 
-  const filtroActivosMov = [filtroDesde, filtroHasta, filtroTipo, filtroMetodo, filtroCliente, filtroEmpresaNombre, buscarNombre.trim()].filter(Boolean).length;
+  const filtroActivosMov = [filtroDesde, filtroHasta, filtroTipo, filtroMetodo, filtroCliente, filtroEmpresaNombre, buscarNombre.trim(), mostrarInactivos].filter(Boolean).length;
   const filtroActivosEmp = [filtroDesde, filtroHasta, filtroEmpresaNombre, buscarNombre.trim()].filter(Boolean).length;
   const filtroActivos = activeTab === 'cuentas_empresa' ? filtroActivosEmp : filtroActivosMov;
-  const limpiarFiltros = () => { setFiltroDesde(''); setFiltroHasta(''); setFiltroTipo(''); setFiltroMetodo(''); setFiltroCliente(''); setFiltroEmpresaNombre(''); setBuscarNombre(''); setPage(1); setPageEmpresa(1); };
+  const limpiarFiltros = () => { setFiltroDesde(''); setFiltroHasta(''); setFiltroTipo(''); setFiltroMetodo(''); setFiltroCliente(''); setFiltroEmpresaNombre(''); setBuscarNombre(''); setMostrarInactivos(false); setPage(1); setPageEmpresa(1); };
 
   // Edit monto state (admin only)
   const [editMontoModal, setEditMontoModal] = useState(null);
@@ -100,13 +109,11 @@ export default function Caja() {
       const hasta = filtroHasta || new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
       const movs = await getMovimientosRango(desde, hasta);
       const movimientos = Array.isArray(movs) ? movs : [];
-      const totalIngresos = movimientos.filter(m => m.tipo === 'INGRESO').reduce((s, m) => s + (parseFloat(m.monto) || 0), 0);
-      const totalEgresos = movimientos.filter(m => m.tipo === 'EGRESO').reduce((s, m) => s + (parseFloat(m.monto) || 0), 0);
       setResumen({
-        totalIngresos,
-        totalEgresos,
-        balance: totalIngresos - totalEgresos,
-        cantidadMovimientos: movimientos.length,
+        totalIngresos: 0,
+        totalEgresos: 0,
+        balance: 0,
+        cantidadMovimientos: 0,
         movimientos,
       });
     } catch {
@@ -122,8 +129,8 @@ export default function Caja() {
   }, [fetchResumen]);
 
   const movimientosFiltrados = useMemo(() => {
-    let filtered = resumen.movimientos;
-    if (filtroTipo) filtered = filtered.filter(m => filtroTipo === 'INGRESO' ? m.tipo === 'INGRESO' : m.tipo === 'EGRESO');
+    let filtered = mostrarInactivos ? resumen.movimientos : filterMovimientosActivos(resumen.movimientos);
+    if (filtroTipo) filtered = filtered.filter(m => filtroTipo === 'INGRESO' ? isMovimientoCajaIngreso(m) : isMovimientoCajaEgreso(m));
     if (filtroMetodo) filtered = filtered.filter(m => m.metodoPago?.toUpperCase() === filtroMetodo);
     if (filtroCliente === 'SOLO_CLIENTES') filtered = filtered.filter(m => !m.nombreEmpresa || m.nombreEmpresa === '—');
     if (filtroCliente === 'SOLO_EMPRESAS') filtered = filtered.filter(m => m.nombreEmpresa && m.nombreEmpresa !== '—');
@@ -139,7 +146,7 @@ export default function Caja() {
       );
     }
     return filtered;
-  }, [resumen.movimientos, filtroTipo, filtroMetodo, filtroCliente, filtroEmpresaNombre, buscarNombre]);
+  }, [resumen.movimientos, filtroTipo, filtroMetodo, filtroCliente, filtroEmpresaNombre, buscarNombre, mostrarInactivos]);
 
   const movimientosSorted = useMemo(() => {
     return [...movimientosFiltrados].sort((a, b) => {
@@ -150,7 +157,7 @@ export default function Caja() {
   }, [movimientosFiltrados, sortDir]);
 
   const cuentasEmpresaAll = useMemo(() => {
-    return resumen.movimientos.filter(m => m.tipo === 'PENDIENTE');
+    return resumen.movimientos.filter(m => isMovimientoCajaPendiente(m) && (parseFloat(m.monto) || 0) > 0.009);
   }, [resumen.movimientos]);
 
   const cuentasEmpresaPendientes = useMemo(() => {
@@ -188,12 +195,8 @@ export default function Caja() {
   );
 
   const resumenFiltrado = useMemo(() => {
-    const totalIngresos = movimientosFiltrados
-      .filter(m => m.tipo === 'INGRESO')
-      .reduce((s, m) => s + (parseFloat(m.monto) || 0), 0);
-    const totalEgresos = movimientosFiltrados
-      .filter(m => m.tipo === 'EGRESO')
-      .reduce((s, m) => s + (parseFloat(m.monto) || 0), 0);
+    const totalIngresos = sumMovimientosCajaIngresos(movimientosFiltrados);
+    const totalEgresos = sumMovimientosCajaEgresos(movimientosFiltrados);
     return {
       totalIngresos,
       totalEgresos,
@@ -322,6 +325,15 @@ export default function Caja() {
           )}
           <PageToolbar.Actions>
             {filtroActivos > 0 && <Btn variant="ghost" onClick={limpiarFiltros}>Limpiar</Btn>}
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--text-muted)', cursor: 'pointer', userSelect: 'none' }}>
+              <input
+                type="checkbox"
+                checked={mostrarInactivos}
+                onChange={(e) => setMostrarInactivos(e.target.checked)}
+                style={{ cursor: 'pointer' }}
+              />
+              Mostrar anulados
+            </label>
             <Btn variant="ghost" style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px' }}
               icon={sortDir === 'desc' ? <ArrowDown size={14} /> : <ArrowUp size={14} />}
               onClick={() => setSortDir(d => d === 'desc' ? 'asc' : 'desc')}>
@@ -333,16 +345,19 @@ export default function Caja() {
                   generarReporteEmpresa(cuentasEmpresaPendientes, filtroEmpresaNombre || 'Todas las empresas',
                     filtroDesde && filtroHasta ? `${filtroDesde} — ${filtroHasta}` : '');
                 } else {
-                  descargarReporteCajaMovimientos(movimientosFiltrados, {
+                  const movsPDF = filterMovimientosActivos(movimientosFiltrados);
+                  const totalIngresosPDF = sumMovimientosCajaIngresos(movsPDF);
+                  const totalEgresosPDF = sumMovimientosCajaEgresos(movsPDF);
+                  descargarReporteCajaMovimientos(movsPDF, {
                     desde: filtroDesde, hasta: filtroHasta,
                     filtroTipo,
                     filtroEmpresa: filtroEmpresaNombre || (filtroCliente === 'SOLO_EMPRESAS' ? 'empresas' : ''),
                     search: buscarNombre,
                     resumen: {
-                      totalIngresos: resumenFiltrado.totalIngresos,
-                      totalEgresos: resumenFiltrado.totalEgresos,
-                      balance: resumenFiltrado.balance,
-                      cantidadMovimientos: resumenFiltrado.cantidadMovimientos,
+                      totalIngresos: totalIngresosPDF,
+                      totalEgresos: totalEgresosPDF,
+                      balance: totalIngresosPDF - totalEgresosPDF,
+                      cantidadMovimientos: movsPDF.length,
                     },
                   });
                 }
@@ -363,13 +378,14 @@ export default function Caja() {
                 try {
                   movHoy = await getResumenHoy();
                   if (!Array.isArray(movHoy)) movHoy = [];
+                  movHoy = filterMovimientosActivos(movHoy);
                 } catch (error) {
                   const msg = error?.response?.data?.message;
                   addToast(msg || 'Error al cargar movimientos de hoy', 'error');
                   return;
                 }
-                const totalIngresos = movHoy.filter(m => m.tipo === 'INGRESO').reduce((s, m) => s + (parseFloat(m.monto) || 0), 0);
-                const totalEgresos = movHoy.filter(m => m.tipo === 'EGRESO').reduce((s, m) => s + (parseFloat(m.monto) || 0), 0);
+                const totalIngresos = sumMovimientosCajaIngresos(movHoy);
+                const totalEgresos = sumMovimientosCajaEgresos(movHoy);
                 generarCierreCaja(movHoy, {
                   totalIngresos, totalEgresos,
                   balance: totalIngresos - totalEgresos,
@@ -393,6 +409,8 @@ export default function Caja() {
         <>
           <Table headers={['Fecha', 'Tipo', 'Monto', 'Método', 'Concepto', 'Usuario', 'Cliente', '']}>
             {paged.map(m => {
+              const esEgreso = isMovimientoCajaEgreso(m);
+              const esPendiente = isMovimientoCajaPendiente(m);
               return (
               <tr key={m.id}
               >                <td style={tdStyle}>{new Date(m.fecha).toLocaleDateString('es-PE', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' })}</td>
@@ -400,11 +418,11 @@ export default function Caja() {
                   <span style={{
                     padding: '2px 8px', borderRadius: 'var(--r-sm, 4px)', fontSize: 11, fontWeight: 600,
                     display: 'inline-flex', alignItems: 'center', gap: 4,
-                    color: m.tipo === 'EGRESO' ? 'var(--red, #e53935)' : m.tipo === 'PENDIENTE' ? '#e65100' : 'var(--green, #43a047)',
-                    background: m.tipo === 'EGRESO' ? 'var(--red-bg, #fbe9e7)' : m.tipo === 'PENDIENTE' ? '#fff3e0' : 'var(--green-bg, #e8f5e9)',
+                    color: esEgreso ? 'var(--red, #e53935)' : esPendiente ? '#e65100' : 'var(--green, #43a047)',
+                    background: esEgreso ? 'var(--red-bg, #fbe9e7)' : esPendiente ? '#fff3e0' : 'var(--green-bg, #e8f5e9)',
                   }}>
-                    {m.tipo === 'EGRESO' ? <TrendingDown size={12} /> : m.tipo === 'PENDIENTE' ? <Clock size={12} /> : <TrendingUp size={12} />}
-                    {m.tipo === 'EGRESO' ? 'Egreso' : m.tipo === 'PENDIENTE' ? 'Pendiente' : 'Ingreso'}
+                    {esEgreso ? <TrendingDown size={12} /> : esPendiente ? <Clock size={12} /> : <TrendingUp size={12} />}
+                    {esEgreso ? 'Egreso' : esPendiente ? 'Pendiente' : 'Ingreso'}
                   </span>
                 </td>
                 <td style={{ ...tdStyle, fontWeight: 700, fontSize: 14, color: 'var(--accent-dark)' }}>
@@ -496,6 +514,7 @@ export default function Caja() {
         onClose={() => setGestionarModal(null)}
         onSuccess={fetchResumen}
         onCobrar={(mov) => setCobrarModal(mov)}
+        refreshAlquiler={refreshAlquiler}
       />
       <MovimientoFormModal open={modalOpen} tipo={modalTipo} onClose={() => setModalOpen(false)} onSuccess={fetchResumen} />
       <EditMontoModal movimiento={editMontoModal} onClose={() => setEditMontoModal(null)} onSuccess={fetchResumen} />
@@ -513,7 +532,7 @@ export default function Caja() {
           onClose={() => setDeleteModal(false)}
           onSuccess={fetchResumen}
           title="⚠️ Limpiar movimientos de caja"
-          warningText='Los registros eliminados <strong>no se pueden recuperar</strong>. Revisá el resumen antes de confirmar.'
+          warningText={<>Los registros eliminados <strong>no se pueden recuperar</strong>. Revisá el resumen antes de confirmar.</>}
           todoDesc="Borra todos los ingresos, egresos y cuentas pendientes"
           emptyMessage="No hay movimientos en ese período."
           previewFn={previewDeleteMovimientos}

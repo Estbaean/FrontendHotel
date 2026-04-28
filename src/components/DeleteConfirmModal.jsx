@@ -97,8 +97,9 @@ export default function DeleteConfirmModal({
             <AlertTriangle size={22} color="var(--red, #e53935)" style={{ flexShrink: 0, marginTop: 1 }} />
             <div>
               <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--red, #e53935)', marginBottom: 4 }}>Acción irreversible</div>
-              <div style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.5 }}
-                dangerouslySetInnerHTML={{ __html: warningText }} />
+              <div style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.5 }}>
+                {warningText}
+              </div>
             </div>
           </div>
 

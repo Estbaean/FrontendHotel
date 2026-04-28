@@ -1,4 +1,6 @@
 import { jsPDF } from 'jspdf';
+import { buildAlquilerCuentaResumen } from './alquilerCuenta';
+import { isMovimientoCajaEgreso, isMovimientoCajaIngreso, isMovimientoCajaPendiente, filterMovimientosActivos } from './cajaMovimientos';
 
 const BRAND_NAME = 'ARROYO Hospedaje';
 
@@ -179,6 +181,7 @@ export function descargarReporteCajaMovimientos(movimientos, filtros = {}) {
   const doc = new jsPDF();
   const isAdminExport = filtros?.isAdmin !== false;
   const resumen = filtros?.resumen || {};
+  const movs = filterMovimientosActivos(movimientos);
   let y = writeHeader(doc, 'Reporte de Caja', null);
 
   /* ─── Filtros aplicados ─── */
@@ -253,7 +256,7 @@ export function descargarReporteCajaMovimientos(movimientos, filtros = {}) {
 
   doc.setFontSize(8.5);
 
-  (movimientos || []).forEach((row, idx) => {
+  movs.forEach((row, idx) => {
     if (y > 275) {
       doc.addPage();
       y = 20;
@@ -272,6 +275,8 @@ export function descargarReporteCajaMovimientos(movimientos, filtros = {}) {
     const empresaNom = esCorporativo ? String(row.nombreEmpresa).slice(0, 18) : '';
     const metodo = (ocultar || esCorporativo) ? '' : String(row?.metodoPago || '—');
     const monto = Number(row?.monto || 0);
+    const esEgreso = isMovimientoCajaEgreso(row);
+    const esPendiente = isMovimientoCajaPendiente(row);
     const montoStr = ocultar ? '—' : `${tipo === 'EGRESO' ? '-' : ''}S/ ${monto.toFixed(2)}`;
 
     doc.setFont('helvetica', 'normal');
@@ -309,7 +314,7 @@ export function descargarReporteCajaMovimientos(movimientos, filtros = {}) {
     y += empresaNom ? 9 : 7;
   });
 
-  if (!movimientos || movimientos.length === 0) {
+  if (!movs.length) {
     doc.setTextColor(...C.muted);
     doc.text('No hay movimientos para exportar con los filtros actuales.', 14, y + 4);
     doc.setTextColor(0);
@@ -661,10 +666,15 @@ export function generarBoletaCheckout(alquiler, consumos = [], movimientos = [],
     y += 4;
 
     /* ─── Totales ─── */
-    const precioFijadoTotales = Number(alquiler?.subTotal || 0);
-    const totalPagado = Number(alquiler?.totalPagadoCaja || 0);
-    const pendiente = Number(alquiler?.pagoPendiente || 0);
-    const totalGeneral = precioFijadoTotales + (consumos || []).reduce((s, c) => s + Number(c?.subTotal || 0), 0);
+    const resumenCuenta = buildAlquilerCuentaResumen({
+      alquiler,
+      cuentaItems: consumos,
+      movimientos,
+    });
+    const precioFijadoTotales = resumenCuenta.basePrice;
+    const totalPagado = resumenCuenta.totalPagado;
+    const pendiente = resumenCuenta.saldoPendiente;
+    const totalGeneral = resumenCuenta.totalFactura;
 
     const totales = [
       ['Total cargos', `S/ ${totalGeneral.toFixed(2)}`, C.dark],
@@ -685,7 +695,8 @@ export function generarBoletaCheckout(alquiler, consumos = [], movimientos = [],
     y += 6;
 
     /* ─── Historial de pagos ─── */
-    if (movimientos && movimientos.length > 0) {
+    const movsBoleta = filterMovimientosActivos(movimientos);
+    if (movsBoleta.length > 0) {
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(9);
       doc.setTextColor(...C.accent);
@@ -701,7 +712,7 @@ export function generarBoletaCheckout(alquiler, consumos = [], movimientos = [],
 
       y = drawTableHeader(doc, y, paymentCols);
 
-      movimientos.forEach((m, idx) => {
+      movsBoleta.forEach((m, idx) => {
         if (y > 270) { doc.addPage(); y = 20; }
         drawRowBg(doc, y, idx);
         doc.setFont('helvetica', 'normal');
@@ -785,6 +796,8 @@ export function generarCierreCaja(movimientos, resumen = {}, periodo = '') {
   const totalEgresos = Number(resumen.totalEgresos || 0);
   const balance = Number(resumen.balance || 0);
 
+  const movs = filterMovimientosActivos(movimientos);
+
   /* ─── Resumen por método de pago ─── */
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(9);
@@ -795,11 +808,11 @@ export function generarCierreCaja(movimientos, resumen = {}, periodo = '') {
   const metodos = ['EFECTIVO', 'YAPE', 'TARJETA', 'TRANSFERENCIA'];
   const byMetodo = {};
   metodos.forEach(m => { byMetodo[m] = { ingresos: 0, egresos: 0 }; });
-  (movimientos || []).forEach(m => {
+  movs.forEach(m => {
     const met = m?.metodoPago || 'EFECTIVO';
     if (!byMetodo[met]) byMetodo[met] = { ingresos: 0, egresos: 0 };
-    if (m?.tipo === 'INGRESO') byMetodo[met].ingresos += Number(m?.monto || 0);
-    else byMetodo[met].egresos += Number(m?.monto || 0);
+    if (isMovimientoCajaIngreso(m)) byMetodo[met].ingresos += Number(m?.monto || 0);
+    else if (isMovimientoCajaEgreso(m)) byMetodo[met].egresos += Number(m?.monto || 0);
   });
 
   /* Header de tabla resumen */
@@ -870,7 +883,7 @@ export function generarCierreCaja(movimientos, resumen = {}, periodo = '') {
   y = drawTableHeader(doc, y, detCols);
 
   doc.setFontSize(8.5);
-  (movimientos || []).forEach((row, i) => {
+  movs.forEach((row, i) => {
     if (y > 265) {
       doc.addPage();
       y = 20;
@@ -884,14 +897,16 @@ export function generarCierreCaja(movimientos, resumen = {}, periodo = '') {
     const concepto = String(row?.concepto || '—').slice(0, 35);
     const metodo = String(row?.metodoPago || '—');
     const monto = Number(row?.monto || 0);
+    const esEgreso = isMovimientoCajaEgreso(row);
+    const esPendiente = isMovimientoCajaPendiente(row);
 
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(...C.mid);
     doc.text(fecha, 16, y);
 
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(...(tipo === 'EGRESO' ? C.red : C.green));
-    doc.text(tipo === 'EGRESO' ? 'Egreso' : 'Ingreso', 48, y);
+    doc.setTextColor(...(esEgreso ? C.red : esPendiente ? C.accent : C.green));
+    doc.text(esEgreso ? 'Egreso' : esPendiente ? 'Pend.' : 'Ingreso', 48, y);
 
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(...C.dark);
@@ -901,8 +916,8 @@ export function generarCierreCaja(movimientos, resumen = {}, periodo = '') {
     doc.text(metodo, 124, y);
 
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(...(tipo === 'EGRESO' ? C.red : C.dark));
-    doc.text(`${tipo === 'EGRESO' ? '-' : ''}S/ ${monto.toFixed(2)}`, 178, y, { align: 'right' });
+    doc.setTextColor(...(esEgreso ? C.red : esPendiente ? C.accent : C.dark));
+    doc.text(`${esEgreso ? '-' : ''}S/ ${monto.toFixed(2)}`, 178, y, { align: 'right' });
 
     doc.setDrawColor(...C.line);
     doc.line(14, y + 2.5, 180, y + 2.5);
@@ -939,7 +954,7 @@ export function generarReporteEmpresa(movimientos, empresaNombre, periodo = '') 
   const pageW = doc.internal.pageSize.getWidth();
   let y = writeHeader(doc, `Reporte — ${empresaNombre}`, periodo || 'Periodo actual');
 
-  const movsEmpresa = (movimientos || []).filter(m => m?.nombreEmpresa === empresaNombre);
+  const movsEmpresa = filterMovimientosActivos(movimientos).filter(m => m?.nombreEmpresa === empresaNombre);
 
   /* ─── Resumen ─── */
   doc.setFont('helvetica', 'bold');

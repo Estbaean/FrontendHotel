@@ -19,6 +19,7 @@ const BTN_VARIANTS = {
   secondary: { bg:'var(--surface-2)', color:'var(--text)',        border:'var(--border)',       hoverBg:'var(--border)'      },
   ghost:     { bg:'transparent',     color:'var(--text-2)',       border:'var(--border)',        hoverBg:'var(--surface-2)'   },
   danger:    { bg:'var(--red)',       color:'#fff',               border:'transparent',         hoverBg:'#b91c1c'            },
+  warning:   { bg:'var(--orange)',    color:'#fff',               border:'transparent',         hoverBg:'#e65100'            },
   soft:      { bg:'var(--accent-light)', color:'var(--accent)',   border:'var(--accent-mid)',   hoverBg:'var(--accent-mid)'  },
   icon:      { bg:'transparent',     color:'var(--text-muted)',   border:'var(--border)',        hoverBg:'var(--surface-2)'   },
 };
@@ -116,7 +117,7 @@ export function ConfirmDialog({ open, onOpenChange, onConfirm, title='Confirmar 
           <div style={{
             background:'var(--surface)', borderRadius:'var(--r-xl)',
             boxShadow:'var(--shadow-lg)', padding:'24px 24px 20px',
-          }}>
+            }}>
             <div style={{ display:'flex', gap:14, alignItems:'flex-start', marginBottom:20 }}>
               <div style={{
                 width:40, height:40, borderRadius:'var(--r-md)', background:'var(--red-bg)',

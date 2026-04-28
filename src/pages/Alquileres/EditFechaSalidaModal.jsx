@@ -9,7 +9,7 @@ import s from '../../styles/shared.module.css';
  * Modal dedicado para editar la fecha de salida de un alquiler.
  * Muestra preview en tiempo real del nuevo costo basado en la cantidad de tiempo.
  */
-export default function EditFechaSalidaModal({ alquiler, onClose, onSuccess, refetchAlquileres }) {
+export default function EditFechaSalidaModal({ alquiler, onClose, onSuccess }) {
   const addToast = useToast();
   
   // Reset state when alquiler prop changes (fixes stale data between alquileres)
@@ -37,11 +37,9 @@ export default function EditFechaSalidaModal({ alquiler, onClose, onSuccess, ref
   const unidad = alquiler?.tipoAlquilerUnidad || 'DIA';
   const multiplicador = alquiler?.tipoAlquilerMultiplicador || 1;
   const pagoPendienteActual = parseFloat(alquiler?.pagoPendiente || 0);
-  const totalPagado = parseFloat(alquiler?.totalPagadoCaja || 0);
-
   const [isFocused, setIsFocused] = useState(false);
-  const isInvalidDate = (alquiler && alquiler.fechaIngreso) 
-    ? new Date(newFecha) <= new Date(alquiler.fechaIngreso) 
+  const isInvalidDate = (alquiler && alquiler.fechaIngreso)
+    ? new Date(newFecha + ':00Z').getTime() <= new Date(alquiler.fechaIngreso).getTime()
     : false;
 const fechaIngresoFormateada = (alquiler && alquiler.fechaIngreso)
     ? new Date(alquiler.fechaIngreso).toLocaleString('es-PE', {
@@ -74,7 +72,7 @@ const fechaIngresoFormateada = (alquiler && alquiler.fechaIngreso)
       
       // FIXED: Only adjust alojamiento subtotal, preserve extras/pagos
       // nuevoPendiente = pendienteActual + delta_subtotal_alojamiento
-      const pagoPendienteNuevo = Math.max(0, pagoPendienteActual + (subTotalNuevo - subTotalActual));
+      const pagoPendienteNuevo = pagoPendienteActual + (subTotalNuevo - subTotalActual);
 
       return {
         cantTiempoNuevo,
@@ -104,7 +102,6 @@ const fechaIngresoFormateada = (alquiler && alquiler.fechaIngreso)
       const updated = await patchAlquilerFechaSalida(alquiler.id, isoFecha);
       addToast('Fecha de salida actualizada correctamente', 'success');
       onSuccess?.(updated);
-      refetchAlquileres?.(); // Full sync
       onClose();
     } catch (error) {
       addToast(error?.response?.data?.message || 'Error al actualizar fecha', 'error');

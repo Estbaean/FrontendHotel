@@ -59,7 +59,7 @@ export default function Habitaciones() {
   const validate = () => {
     const e = {};
     if (!form.numero.trim()) e.numero = 'Campo requerido';
-    if (!form.piso)          e.piso = 'Selecciona un piso';
+    if (form.piso === '')    e.piso = 'Selecciona un piso';
     if (!form.tipoHabitacionId) e.tipoHabitacionId = 'Selecciona un tipo';
     setErrors(e);
     return !Object.keys(e).length;
@@ -67,21 +67,31 @@ export default function Habitaciones() {
 
   const handleSubmit = async () => {
     if (!validate()) return;
+
+    const tipoHab = tiposHabitacion.find(t => String(t.id) === form.tipoHabitacionId);
     const payload = {
-      numero: form.numero,
+      numero: form.numero.trim(),
       piso: Number(form.piso),
       descripcion: form.descripcion,
       estado: form.estado,
-      tipoHabitacion: { id: Number(form.tipoHabitacionId) },
+      tipoHabitacion: tipoHab
+        ? { id: tipoHab.id, nombre: tipoHab.nombre }
+        : { id: Number(form.tipoHabitacionId) },
     };
+
     setSubmitting(true);
     try {
       editId ? await updateHabitacion(editId, payload) : await addHabitacion(payload);
       addToast(editId ? 'Habitación actualizada' : 'Habitación creada', 'success');
       setModalOpen(false);
     } catch (error) {
+      const status = error?.response?.status;
       const msg = error?.response?.data?.message;
-      addToast(msg || 'Error al guardar la habitación', 'error');
+      if (status === 409) {
+        addToast(msg || 'Conflicto: verifica que el número no esté duplicado y que todos los campos sean válidos.', 'error');
+      } else {
+        addToast(msg || 'Error al guardar la habitación', 'error');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -200,7 +210,6 @@ export default function Habitaciones() {
                         icon={<FileText size={12} />}
                         onClick={() => setReporteMensualHab(hab)}
                         title="Reporte de alquileres finalizados por habitación">
-                        Finalizados PDF
                       </Btn>
                       {!readOnly && (
                         <>
@@ -225,7 +234,7 @@ export default function Habitaciones() {
           {/* MODAL */}
           <Modal open={modalOpen} onOpenChange={setModalOpen} title={editId ? 'Editar habitación' : 'Nueva habitación'} width={520}>
             <Field label="Número" error={errors.numero} required>
-              <input style={inputStyle} value={form.numero} onChange={e=>set('numero',e.target.value)} placeholder="Ej: 101" onFocus={inputFocus} onBlur={inputBlur} />
+              <input style={inputStyle} value={form.numero} onChange={e=>set('numero',e.target.value)} placeholder="Ej: 101, 101A, 101B" onFocus={inputFocus} onBlur={inputBlur} />
             </Field>
             <div className="form-grid-row" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
               <Field label="Tipo de Habitación" error={errors.tipoHabitacionId} required>

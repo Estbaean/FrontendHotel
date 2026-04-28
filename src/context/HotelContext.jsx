@@ -253,6 +253,15 @@ export function HotelProvider({ children }) {
     }
   }, []);
 
+  const mergeAlquilerLocal = useCallback((id, patch) => {
+    if (!id || !patch) return;
+    setAlquileres(prev => prev.map(alquiler => (
+      alquiler.id === id
+        ? { ...alquiler, ...(typeof patch === 'function' ? patch(alquiler) : patch) }
+        : alquiler
+    )));
+  }, []);
+
   const refetchAlquileres = useCallback(async () => {
     try {
       const currentRole = deriveAppRole(token);
@@ -295,7 +304,7 @@ export function HotelProvider({ children }) {
       clientes, addCliente, updateCliente, deleteCliente,
 
       // Alquileres (check-in / check-out)
-      alquileres, checkIn, checkOut, refreshAlquiler, refetchAlquileres,
+      alquileres, checkIn, checkOut, refreshAlquiler, refetchAlquileres, mergeAlquilerLocal,
 
       // Caja
       movimientosCaja,
